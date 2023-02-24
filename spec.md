@@ -104,11 +104,7 @@ FIRRTL 사양은 원래 아담 이즈라엘레비츠(`[@azidar](https://github.c
 
 # File Preamble
 
-A FIRRTL file begins with a magic string and version identifier indicating the
-version of this standard the file conforms to
-(see [@sec:versioning-scheme-of-this-document]).  This will not be present on
-files generated according to versions of this standard prior to the first
-versioned release of this standard to include this preamble.
+FIRRTL 파일은 파일이 준수하는 이 표준의 버전을 나타내는 매직 문자열과 버전 식별자로 시작됩니다([@sec:versioning-scheme-of-this-document] 참조). 이 서문을 포함하는 이 표준의 첫 번째 버전 릴리스 이전에 이 표준의 버전에 따라 생성된 파일에는 이 매직 문자열이 존재하지 않습니다.
 
 ``` firrtl
 FIRRTL version 1.1.0
@@ -119,9 +115,7 @@ circuit MyTop...
 
 ## Circuits
 
-All FIRRTL circuits consist of a list of modules, each representing a hardware
-block that can be instantiated. The circuit must specify the name of the
-top-level module.
+모든 FIRRTL 회로는 모듈 목록으로 구성되며, 각 모듈은 인스턴스화할 수 있는 하드웨어 블록을 나타냅니다. 회로는 최상위 모듈의 이름을 지정해야 합니다.
 
 ``` firrtl
 circuit MyTop :
@@ -133,14 +127,9 @@ circuit MyTop :
 
 ## Modules
 
-Each module has a given name, a list of ports, and a list of statements
-representing the circuit connections within the module. A module port is
-specified by its direction, which may be input or output, a name, and the data
-type of the port.
+각 모듈에는 주어진 이름, 포트 목록, 모듈 내의 회로 연결을 나타내는 문 목록이 있습니다. 모듈 포트는 입력 또는 출력일 수 있는 방향, 이름, 포트의 데이터 유형으로 지정됩니다.
 
-The following example declares a module with one input port, one output port,
-and one statement connecting the input port to the output port.  See
-[@sec:connects] for details on the connect statement.
+다음 예는 입력 포트 1개, 출력 포트 1개, 입력 포트와 출력 포트를 연결하는 문 1개가 있는 모듈을 선언합니다. connect 문에 대한 자세한 내용은 [@sec:connects]를 참조하세요.
 
 ``` firrtl
 module MyModule :
@@ -149,10 +138,7 @@ module MyModule :
   bar <= foo
 ```
 
-Note that a module definition does *not* indicate that the module will be
-physically present in the final circuit. Refer to the description of the
-instance statement for details on how to instantiate a module
-([@sec:instances]).
+모듈 정의는 모듈이 최종 회로에 물리적으로 존재한다는 것을 *표시하지* 않는다는 점에 유의하세요. 모듈을 인스턴스화하는 방법에 대한 자세한 내용은 인스턴스 문 설명을 참조하세요([@sec:인스턴스]).
 
 ## Externally Defined Modules
 
