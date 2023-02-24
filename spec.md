@@ -45,92 +45,34 @@ lastDelim: ", and"
 
 ## Background
 
-The ideas for FIRRTL (Flexible Intermediate Representation for RTL) originated
-from work on Chisel, a hardware description language (HDL) embedded in Scala
-used for writing highly-parameterized circuit design generators. Chisel
-designers manipulate circuit components using Scala functions, encode their
-interfaces in Scala types, and use Scala's object-orientation features to write
-their own circuit libraries. This form of meta-programming enables expressive,
-reliable and type-safe generators that improve RTL design productivity and
-robustness.
+FIRRTL(RTL을 위한 유연한 중간 표현)에 대한 아이디어는 고도로 파라미터화된 회로 설계 생성기를 작성하는 데 사용되는 Scala에 내장된 하드웨어 설명 언어(HDL)인 Chisel에 대한 작업에서 시작되었습니다. 치즐 설계자는 Scala 함수를 사용하여 회로 구성 요소를 조작하고, 인터페이스를 Scala 유형으로 인코딩하며, Scala의 객체 지향 기능을 사용하여 자체 회로 라이브러리를 작성합니다. 이러한 형태의 메타 프로그래밍은 표현력이 풍부하고 신뢰할 수 있으며 유형 안전성이 뛰어난 제너레이터를 구현하여 RTL 설계 생산성과 견고성을 향상시킵니다.
 
-The computer architecture research group at U.C. Berkeley relies critically on
-Chisel to allow small teams of graduate students to design sophisticated RTL
-circuits. Over a three year period with under twelve graduate students, the
-architecture group has taped-out over ten different designs.
+U.C. 버클리의 컴퓨터 아키텍처 연구 그룹은 대학원생으로 구성된 소규모 팀이 정교한 RTL 회로를 설계할 수 있도록 Chisel에 크게 의존하고 있습니다. 대학원생 12명 미만으로 구성된 이 아키텍처 그룹은 3년 동안 10가지가 넘는 설계를 테이프로 제작했습니다.
 
-Internally, the investment in developing and learning Chisel was rewarded with
-huge gains in productivity. However, Chisel's external rate of adoption was slow
-for the following reasons.
+내부적으로는 치즐의 개발과 학습에 대한 투자가 생산성 향상이라는 큰 성과로 보답했습니다. 하지만 다음과 같은 이유로 Chisel의 외부 도입 속도는 더디게 진행되었습니다.
 
-1.  Writing custom circuit transformers requires intimate knowledge about the
-    internals of the Chisel compiler.
+1. 커스텀 회로 변압기를 작성하려면 Chisel 컴포넌트 내부에 대한 내부에 대한 깊은 지식이 필요합니다.
+2. 치즐 시맨틱이 제대로 지정되지 않았기 때문에 다른 언어에서 타겟팅할 수 없습니다.
+3. 지정되지 않은 의미론으로 인해 오류 검사가 원칙에 어긋나며 그 결과 이해할 수 없는 오류 메시지가 발생합니다.
+4. 함수형 프로그래밍 언어(스칼라)를 배우는 것은 프로그래밍 언어 경험이 부족한 RTL 디자이너에게는 함수형 프로그래밍 언어(스칼라)를 배우기가 어렵습니다.
+5. 임베디드 Chisel과 호스트 언어를 개념적으로 분리하는 것이 어렵습니다. HDL을 호스트 언어와 개념적으로 분리하는 것은 새로운 사용자에게는 어렵습니다.
+6. 치즐(Verilog)의 출력은 읽을 수 없고 시뮬레이션 속도가 느립니다.
 
-2.  Chisel semantics are under-specified and thus impossible to target from
-    other languages.
-
-3.  Error checking is unprincipled due to under-specified semantics resulting in
-    incomprehensible error messages.
-
-4.  Learning a functional programming language (Scala) is difficult for RTL
-    designers with limited programming language experience.
-
-5.  Confounding the previous point, conceptually separating the embedded Chisel
-    HDL from the host language is difficult for new users.
-
-6.  The output of Chisel (Verilog) is unreadable and slow to simulate.
-
-As a consequence, Chisel needed to be redesigned from the ground up to
-standardize its semantics, modularize its compilation process, and cleanly
-separate its front-end, intermediate representation, and backends. A well
-defined intermediate representation (IR) allows the system to be targeted by
-other HDLs embedded in other host programming languages, making it possible for
-RTL designers to work within a language they are already comfortable with. A
-clearly defined IR with a concrete syntax also allows for inspection of the
-output of circuit generators and transformers thus making clear the distinction
-between the host language and the constructed circuit. Clearly defined semantics
-allows users without knowledge of the compiler implementation to write circuit
-transformers; examples include optimization of circuits for simulation speed,
-and automatic insertion of signal activity counters.  An additional benefit of a
-well defined IR is the structural invariants that can be enforced before and
-after each compilation stage, resulting in a more robust compiler and structured
-mechanism for error checking.
+결과적으로 Chisel은 처음부터 다시 설계해야 했습니다. 시맨틱을 표준화하고, 컴파일 프로세스를 모듈화하며, 깔끔하게 프론트엔드, 중간 표현, 백엔드를 분리해야 했습니다. 잘 정의된 중간 표현(IR)을 통해 시스템을 타겟팅할 수 있습니다. 다른 호스트 프로그래밍 언어에 임베디드된 다른 HDL이 시스템을 타겟팅할 수 있습니다. RTL 설계자는 이미 익숙한 언어 내에서 작업할 수 있습니다. A 구체적인 구문으로 명확하게 정의된 IR을 사용하면 회로 생성기 및 변압기의 출력을 회로 생성기 및 변압기의 출력을 검사할 수 있으므로 호스트 언어와 구성 언어 사이의 명확하게 구분할 수 있습니다. 명확하게 정의된 의미론 컴파일러 구현에 대한 지식이 없는 사용자도 회로를 작성할 수 있습니다. 트랜스포머를 작성할 수 있으며, 시뮬레이션 속도를 위한 회로 최적화, 신호 활동 카운터 자동 삽입 등을 예로 들 수 있습니다. 잘 정의된 IR의 또 다른 이점은 잘 정의된 IR의 또 다른 이점은 각 컴파일 단계 전후에 적용될 수 있는 구조적 불변성입니다. 각 컴파일 단계 전후에 적용될 수 있는 구조적 불변성으로, 보다 강력한 컴파일러와 구조화된 오류 검사를 위한 메커니즘을 제공합니다.
 
 ## Design Philosophy
 
-FIRRTL represents the standardized elaborated circuit that the Chisel HDL
-produces. FIRRTL represents the circuit immediately after Chisel's
-elaboration. It is designed to resemble the Chisel HDL after all
-meta-programming has executed. Thus, a user program that makes little use of
-meta-programming facilities should look almost identical to the generated
-FIRRTL.
+FIRRTL은 Chisel HDL이 생성하는 표준화된 정교한 회로를 나타냅니다. FIRRTL은 치즐의 정교화 직후 회로를 나타냅니다. 모든 메타 프로그래밍이 실행된 후 Chisel HDL과 유사하도록 설계되었습니다. 따라서 메타 프로그래밍 기능을 거의 사용하지 않는 사용자 프로그램은 생성된 FIRRTL과 거의 동일하게 보일 것입니다.
 
-For this reason, FIRRTL has first-class support for high-level constructs such
-as vector types, bundle types, conditional statements, and modules. A FIRRTL
-compiler may choose to convert high-level constructs into low-level constructs
-before generating Verilog.
+이러한 이유로 FIRRTL은 벡터 유형, 번들 유형, 조건문 및 모듈과 같은 상위 수준 구성을 최고 수준으로 지원합니다. FIRRTL 컴파일러는 Verilog를 생성하기 전에 하이레벨 구문을 로우레벨 구문으로 변환하도록 선택할 수 있습니다.
 
-Because the host language is now used solely for its meta-programming
-facilities, the frontend can be very light-weight, and additional HDLs written
-in other languages can target FIRRTL and reuse the majority of the compiler
-toolchain.
+이제 호스트 언어가 메타 프로그래밍 기능에만 사용되기 때문에 프론트엔드를 매우 가볍게 만들 수 있으며, 다른 언어로 작성된 추가 HDL은 FIRRTL을 대상으로 하여 컴파일러 툴체인의 대부분을 재사용할 수 있습니다.
 
 # Acknowledgments
 
-The FIRRTL specification was originally published as a UC Berkeley Tech Report
-([UCB/EECS-2016-9](https://www2.eecs.berkeley.edu/Pubs/TechRpts/2016/EECS-2016-9.html))
-authored by Adam Izraelevitz ([`@azidar`](https://github.com/azidar)), Patrick
-Li ([`@CuppoJava`](https://github.com/CuppoJava)), and Jonathan Bachrach
-([`@jackbackrack`](https://github.com/jackbackrack)).  The vision for FIRRTL was
-then expanded in an [ICCAD
-paper](https://ieeexplore.ieee.org/abstract/document/8203780) and in [Adam's
-thesis](https://www2.eecs.berkeley.edu/Pubs/TechRpts/2019/EECS-2019-168.html).
+FIRRTL 사양은 원래 아담 이즈라엘레비츠(`[@azidar](https://github.com/azidar)`, 패트릭 리(`[@CuppoJava](https://github.com/CuppoJava)`, 조나단 바크라치(`[@jackbackrack](https://github.com/jackbackrack)`가 작성한 UC 버클리 기술 보고서([UCB/EECS-2016-9](https://www2.eecs.berkeley.edu/Pubs/TechRpts/2016/EECS-2016-9.html)로 발표되었습니다. 이후 FIRRTL에 대한 비전은 [ICCAD 논문](https://ieeexplore.ieee.org/abstract/document/8203780)과 [아담의 논문](https://www2.eecs.berkeley.edu/Pubs/TechRpts/2019/EECS-2019-168.html)에서 확장되었습니다.
 
-During that time and since, there have been a number of contributions and
-improvements to the specification.  To better reflect the work of contributors
-after the original tech report, the FIRRTL specification was changed to be
-authored by _The FIRRTL Specification Contributors_.  A list of these
-contributors is below:
+그 기간과 그 이후로 사양에 대한 많은 기여와 개선이 있었습니다. 최초 기술 보고서 이후 기여자들의 작업을 더 잘 반영하기 위해 FIRRTL 사양은 *FIRRTL 사양 기여자*가 작성하는 것으로 변경되었습니다. 이러한 기여자 목록은 아래와 같습니다:
 
 <!-- This can be generated using ./scripts/get-authors.sh -->
 - [`@albert-magyar`](https://github.com/albert-magyar)
