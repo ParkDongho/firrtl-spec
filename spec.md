@@ -380,47 +380,29 @@ output myport: {a: UInt, flip b: {c: UInt, flip d: UInt}}
 
 ## Type Equivalence
 
-The type equivalence relation is used to determine whether a connection between
-two components is legal. See [@sec:connects] for further details about connect
-statements.
+유형 등가 관계는 두 컴포넌트 간의 연결이 합법적인지 여부를 결정하는 데 사용됩니다. 연결 문에 대한 자세한 내용은 [@sec:connects]를 참조하세요.
 
-An unsigned integer type is always equivalent to another unsigned integer type
-regardless of bit width, and is not equivalent to any other type. Similarly, a
-signed integer type is always equivalent to another signed integer type
-regardless of bit width, and is not equivalent to any other type.
+부호 없는 정수 유형은 비트 폭에 관계없이 항상 다른 부호 없는 정수 유형과 동등하며 다른 유형과 동등하지 않습니다. 마찬가지로 부호 있는 정수 타입은 비트 폭에 관계없이 항상 다른 부호 있는 정수 타입과 같으며 다른 타입과 같지 않습니다.
 
-Clock types are equivalent to clock types, and are not equivalent to any other
-type.
+클럭 타입은 클럭 타입과 동등하며 다른 타입과 동등하지 않습니다.
 
-An uninferred `Reset`{.firrtl} can be connected to another `Reset`{.firrtl},
-`UInt`{.firrtl} of unknown width, `UInt<1>`{.firrtl}, or `AsyncReset`{.firrtl}.
-It cannot be connected to both a `UInt`{.firrtl} and an `AsyncReset`{.firrtl}.
+추론되지 않은 `Reset`{.firrtl}은 다른 `Reset`{.firrtl}, 폭을 알 수 없는 `UInt`{.firrtl}, `UInt<1>`{.firrtl} 또는 `AsyncReset`{.firrtl}에 연결할 수 있습니다. `UInt`{.firrtl}와 `AsyncReset`{.firrtl} 둘 다에 연결할 수 없습니다.
 
-The `AsyncReset`{.firrtl} type can be connected to another
-`AsyncReset`{.firrtl} or to a `Reset`{.firrtl}.
+`AsyncReset`{.firrtl} 타입은 다른 `AsyncReset`{.firrtl} 또는 `Reset`{.firrtl}에 연결할 수 있습니다.
 
-Two vector types are equivalent if they have the same length, and if their
-element types are equivalent.
+두 벡터 유형은 길이가 같고 요소 유형이 같으면 동등합니다.
 
-Two bundle types are equivalent if they have the same number of fields, and both
-the bundles' i'th fields have matching names and orientations, as well as
-equivalent types. Consequently, `{a:UInt, b:UInt}`{.firrtl} is not equivalent to
-`{b:UInt, a:UInt}`{.firrtl}, and `{a: {flip b:UInt}}`{.firrtl} is not equivalent
-to `{flip a: {b: UInt}}`{.firrtl}.
+두 번들 유형은 필드 수가 같고 번들의 i번째 필드 이름과 방향이 일치하고 유형이 같으면 동일합니다. 따라서 `{a:UInt, b:UInt}`{.firrtl}은 `{b:UInt, a:UInt}`{.firrtl} 및 `{a: {flip b:UInt}}`{.firrtl}은 `{flip a: {b: UInt}}`{.firrtl}와 같지 않습니다.
 
 # Statements
 
-Statements are used to describe the components within a module and how they
-interact.
+Statements는 모듈 내의 구성 요소와 이들이 상호 작용하는 방식을 설명하는 데 사용됩니다.
 
 ## Connects
 
-The connect statement is used to specify a physically wired connection between
-two circuit components.
+connect 문은 두 회로 구성 요소 간에 물리적으로 유선 연결을 지정하는 데 사용됩니다.
 
-The following example demonstrates connecting a module's input port to its
-output port, where port `myinput`{.firrtl} is connected to port
-`myoutput`{.firrtl}.
+다음 예제에서는 모듈의 입력 포트를 출력 포트에 연결하는 것을 보여 줍니다. 여기서 `myinput`{.firrtl} 포트는 `myoutput`{.firrtl} 포트에 연결됩니다.
 
 ``` firrtl
 module MyModule :
@@ -429,45 +411,27 @@ module MyModule :
   myoutput <= myinput
 ```
 
-In order for a connection to be legal the following conditions must hold:
+합법적인 연결이 되려면 다음 조건이 충족되어야 합니다:
 
-1.  The types of the left-hand and right-hand side expressions must be
-    equivalent (see [@sec:type-equivalence] for details).
+1.  왼쪽 및 오른쪽 표현식의 유형이 동일해야 합니다(자세한 내용은 [@sec:type-equivalence] 참조).
 
-2.  The flow of the left-hand side expression must be sink or duplex (see
-    [@sec:flows] for an explanation of flow).
+2.  왼쪽 표현식의 흐름이 싱크 또는 이중이어야 합니다(흐름에 대한 설명은 [@sec:flows] 참조).
 
-3.  Either the flow of the right-hand side expression is source or duplex, or
-    the right-hand side expression has a passive type.
+3.  오른쪽 표현식의 흐름이 소스 또는 이중이거나 오른쪽 표현식에 수동 유형이 있습니다.
 
-Connect statements from a narrower ground type component to a wider ground type
-component will have its value automatically sign-extended or zero-extended to
-the larger bit width. Connect statements from a wider ground type component to a
-narrower ground type component will have its value automatically truncated to
-fit the smaller bit width. The behavior of connect statements between two
-circuit components with aggregate types is defined by the connection algorithm
-in [@sec:the-connection-algorithm].
+좁은 접지 유형 구성 요소에서 더 넓은 접지 유형 구성 요소로 연결 문을 연결하면 해당 값이 자동으로 더 큰 비트 폭으로 부호가 확장되거나 0으로 확장됩니다. 더 넓은 접지 유형 컴포넌트에서 더 좁은 접지 유형 컴포넌트로의 연결 문은 더 작은 비트 폭에 맞게 값이 자동으로 잘립니다. 집계 유형이 있는 두 회로 컴포넌트 간의 연결 문의 동작은 [@sec:the-connection-algorithm]의 연결 알고리즘에 의해 정의됩니다.
 
 ### The Connection Algorithm
 
-Connect statements between ground types cannot be expanded further.
+접지 유형 간의 Connect 문은 더 확장할 수 없습니다.
 
-Connect statements between two vector typed components recursively connects each
-sub-element in the right-hand side expression to the corresponding sub-element
-in the left-hand side expression.
+두 벡터 유형 컴포넌트 간의 Connect 문은 오른쪽 표현식의 각 하위 요소를 왼쪽 표현식의 해당 하위 요소에 재귀적으로 연결합니다.
 
-Connect statements between two bundle typed components connects the i'th field
-of the right-hand side expression and the i'th field of the left-hand side
-expression. If the i'th field is not flipped, then the right-hand side field is
-connected to the left-hand side field.  Conversely, if the i'th field is
-flipped, then the left-hand side field is connected to the right-hand side
-field.
+두 번들 유형 컴포넌트 간의 연결 문은 오른쪽 표현식의 i번째 필드와 왼쪽 표현식의 i번째 필드를 연결합니다. i번째 필드가 반전되지 않으면 오른쪽 필드가 왼쪽 필드에 연결됩니다.  반대로 i번째 필드가 반전되면 왼쪽 필드가 오른쪽 필드에 연결됩니다.
 
 ## Statement Groups
 
-An ordered sequence of one or more statements can be grouped into a single
-statement, called a statement group. The following example demonstrates a
-statement group composed of three connect statements.
+하나 이상의 statement로 구성된 정렬된 시퀀스를 단일 문으로 그룹화할 수 있으며, 이를 statement 그룹이라고 합니다. 다음 예에서는 세 개의 connect 문으로 구성된 statement 그룹을 보여 줍니다.
 
 ``` firrtl
 module MyModule :
@@ -482,22 +446,11 @@ module MyModule :
 
 ### Last Connect Semantics
 
-Ordering of statements is significant in a statement group. Intuitively, during
-elaboration, statements execute in order, and the effects of later statements
-take precedence over earlier ones. In the previous example, in the resultant
-circuit, port `b`{.firrtl} will be connected to `myport1`{.firrtl}, and port
-`a`{.firrtl} will be connected to `myport2`{.firrtl}.
+statement 그룹에서 statement 순서는 중요합니다. 직관적으로, 정교화 중에 statement는 순서대로 실행되며, 이후 statement가 이전 statement보다 우선합니다. 앞의 예에서 결과 회로에서 포트 `b`{.firrtl}는 `myport1`{.firrtl}에 연결되고, 포트 `a`{.firrtl}는 `myport2`{.firrtl}에 연결됩니다.
 
-Conditional statements are also affected by last connect semantics, and for
-details see [@sec:conditional-last-connect-semantics].
+조건문도 마지막 연결 의미론의 영향을 받으며, 자세한 내용은 [@sec:조건부-마지막-연결-의미론]을 참조하세요.
 
-In the case where a connection to a circuit component with an aggregate type is
-followed by a connection to a sub-element of that component, only the connection
-to the sub-element is overwritten. Connections to the other sub-elements remain
-unaffected. In the following example, in the resultant circuit, the `c`{.firrtl}
-sub-element of port `portx`{.firrtl} will be connected to the `c`{.firrtl}
-sub-element of `myport`{.firrtl}, and port `porty`{.firrtl} will be connected to
-the `b`{.firrtl} sub-element of `myport`{.firrtl}.
+aggregate 유형의 회로 구성 요소에 대한 연결 뒤에 해당 구성 요소의 하위 요소에 대한 연결이 뒤따르는 경우 하위 요소에 대한 연결만 덮어씁니다. 다른 하위 요소에 대한 연결은 영향을 받지 않습니다. 다음 예제에서 결과 회로에서 포트 `portx`{.firrtl}의 `c`{.firrtl} 하위 요소는 `myport`{.firrtl}의 `c`{.firrtl} 하위 요소에 연결되고, 포트 `porty`{.firrtl}는 `myport`{.firrtl}의 `b`{.firrtl} 하위 요소에 연결됩니다.
 
 ``` firrtl
 module MyModule :
@@ -508,7 +461,7 @@ module MyModule :
   myport.b <= porty
 ```
 
-The above circuit can be rewritten equivalently as follows.
+위의 회로는 다음과 같이 동일하게 재작성할 수 있습니다.
 
 ``` firrtl
 module MyModule :
@@ -519,9 +472,7 @@ module MyModule :
   myport.c <= portx.c
 ```
 
-In the case where a connection to a sub-element of an aggregate circuit
-component is followed by a connection to the entire circuit component, the later
-connection overwrites the earlier connections completely.
+Aggregate 회로 구성 요소의 하위 요소에 대한 연결 다음에 전체 회로 구성 요소에 대한 연결이 이어지는 경우, 나중에 연결이 이전 연결을 완전히 덮어씁니다.
 
 ``` firrtl
 module MyModule :
@@ -532,7 +483,7 @@ module MyModule :
   myport <= portx
 ```
 
-The above circuit can be rewritten equivalently as follows.
+위의 회로는 다음과 같이 동일하게 재작성할 수 있습니다.
 
 ``` firrtl
 module MyModule :
@@ -542,7 +493,7 @@ module MyModule :
   myport <= portx
 ```
 
-See [@sec:sub-fields] for more details about sub-field expressions.
+하위 필드 표현식에 대한 자세한 내용은 [@sec:sub-fields]를 참조하세요.
 
 ## Empty
 
