@@ -138,19 +138,13 @@ module MyModule :
   bar <= foo
 ```
 
-모듈 정의는 모듈이 최종 회로에 물리적으로 존재한다는 것을 *표시하지* 않는다는 점에 유의하세요. 모듈을 인스턴스화하는 방법에 대한 자세한 내용은 인스턴스 문 설명을 참조하세요([@sec:인스턴스]).
+모듈 정의는 모듈이 최종 회로에 물리적으로 존재한다는 것을 *표시하지* 않는다는 점에 유의하세요. 모듈을 인스턴스화하는 방법에 대한 자세한 내용은 인스턴스 문 설명을 참조하세요([@sec:instance]).
 
 ## Externally Defined Modules
 
-Externally defined modules are modules whose implementation is not provided in
-the current circuit.  Only the ports and name of the externally defined module
-are specified in the circuit.  An externally defined module may include, in
-order, an optional _defname_ which sets the name of the external module in the
-resulting Verilog and zero or more name--value _parameter_ statements.  Each
-name--value parameter statement will result in a value being passed to the named
-parameter in the resulting Verilog.
+외부 정의 모듈은 현재 회로에 구현이 제공되지 않는 모듈입니다. 외부 정의 모듈의 포트와 이름만 회로에 지정됩니다. 외부에서 정의된 모듈에는 결과 Verilog에서 외부 모듈의 이름을 설정하는 선택적 *defname*과 0개 이상의 이름-값 *parameter* 문이 순서대로 포함될 수 있습니다. 각 이름-값 매개변수 문은 결과 Verilog에서 명명된 매개변수로 값이 전달됩니다.
 
-An example of an externally defined module is:
+외부에서 정의된 모듈의 예는 다음과 같습니다:
 
 ``` firrtl
 extmodule MyExternalModule :
@@ -170,21 +164,21 @@ A common use of an externally defined module is to represent a Verilog module
 that will be written separately and provided together with FIRRTL-generated
 Verilog to downstream tools.
 
+외부에서 정의된 모든 모듈 포트의 너비를 지정해야 합니다. [@sec:width-inference]에 설명된 너비 추론은 모듈 포트에 대해 지원되지 않습니다.
+
+외부에서 정의된 모듈의 일반적인 용도는 별도로 작성되어 다운스트림 도구에 FIRRTL로 생성된 Verilog와 함께 제공될 Verilog 모듈을 나타내는 것입니다.
+
 # Types
 
-FIRRTL has two classes of types: _ground_ types and _aggregate_ types.  Ground
-types are fundamental and are not composed of other types.  Aggregate types are
-composed of one or more aggregate or ground types.
+FIRRTL에는 두 가지 타입 클래스가 있습니다: _ground_ 타입과 _aggregate_ 타입입니다. 그라운드 타입은 기본 타입이며 다른 타입으로 구성되지 않습니다. Aggregate 타입은 하나 이상의 Aggregate 또는 Ground 타입으로 구성됩니다.
 
 ## Ground Types
 
-There are five classes of ground types in FIRRTL: unsigned integer types, signed
-integer types, a clock type, reset types, and analog types.
+FIRRTL의 ground 타입에는 부호 없는 정수 타입, 부호 있는 정수 타입, 부호 있는 정수 타입, 클록 타입, 리셋 타입, 아날로그 타입입니다.
 
 ### Integer Types
 
-Both unsigned and signed integer types may optionally be given a known
-non-negative integer bit width.
+부호 없는 정수 타입과 부호 있는 정수 타입 모두 선택적으로 알려진 음수가 아닌 정수 비트 폭을 지정할 수 있습니다.
 
 ``` firrtl
 UInt ; unsigned int type with inferred width
@@ -193,16 +187,11 @@ UInt<10> ; unsigned int type with 10 bits
 SInt<32> ; signed int type with 32 bits
 ```
 
-Alternatively, if the bit width is omitted, it will be automatically inferred by
-FIRRTL's width inferencer, as detailed in [@sec:width-inference].
+또는 비트 폭을 생략하면 [@sec:width-inference]에 자세히 설명된 대로 FIRRTL의 폭 유추기에 의해 자동으로 유추됩니다.
 
 #### Zero Bit Width Integers
 
-Integers of width zero are permissible. They are always zero extended.
-Thus, when used in an operation that extends to a positive bit width, they
-behave like a zero. While zero bit width integers carry no information, we
-allow 0-bit integer constant zeros for convenience:
-`UInt<0>(0)`{.firrtl} and `SInt<0>(0)`{.firrtl}.
+너비가 0인 정수는 허용됩니다. 항상 0으로 확장됩니다. 따라서 양수 비트 폭으로 확장되는 연산에 사용하면 0처럼 동작합니다. 비트 폭이 0인 정수는 아무런 정보를 전달하지 않지만 편의상 0 비트 정수 상수 0을 허용합니다: `UInt<0>(0)`{.firrtl} 및 `SInt<0>(0)`{.firrtl}.
 
 ``` firrtl
 wire zero_u : UInt<0>
@@ -216,7 +205,7 @@ wire one_s : SInt<1>
 one_s <= zero_s
 ```
 
-Is equivalent to:
+위는 아래와 동등합니다:
 
 ```
 wire one_u : UInt<1>
@@ -227,12 +216,9 @@ one_s <= SInt<1>(0)
 
 ### Clock Type
 
-The clock type is used to describe wires and ports meant for carrying clock
-signals. The usage of components with clock types are restricted.  Clock signals
-cannot be used in most primitive operations, and clock signals can only be
-connected to components that have been declared with the clock type.
+클럭 타입은 클럭 신호를 전달하기 위한 wire 및 포트를 설명하는 데 사용됩니다. 클럭 타입이 있는 컴포넌트의 사용은 제한됩니다.  클럭 신호는 대부분의 primitive 연산에서 사용할 수 없으며, 클럭 신호는 클럭 타입으로 선언된 컴포넌트에만 연결할 수 있습니다.
 
-The clock type is specified as follows:
+클럭 타입은 다음과 같이 지정됩니다:
 
 ``` firrtl
 Clock
@@ -240,20 +226,16 @@ Clock
 
 ### Reset Type
 
-The uninferred `Reset`{.firrtl} type is either inferred to `UInt<1>`{.firrtl}
-(synchronous reset) or `AsyncReset`{.firrtl} (asynchronous reset) during
-compilation.
+유추되지 않은 `Reset`{.firrtl} 타입은 컴파일 중에 `UInt<1>`{.firrtl}(동기 리셋) 또는 `AsyncReset`{.firrtl}(비동기 리셋)으로 유추됩니다.
 
 ``` firrtl
 Reset ; inferred type
 AsyncReset
 ```
 
-Synchronous resets used in registers will be mapped to a hardware description
-language representation for synchronous resets.
+레지스터에 사용되는 동기 리셋은 동기 리셋에 대한 하드웨어 기술 언어 표현에 매핑됩니다.
 
-The following example shows an uninferred reset that will get inferred to a
-synchronous reset.
+다음 예제는 동기 리셋으로 추론되는 비추론 리셋을 보여줍니다.
 
 ``` firrtl
 input a : UInt<1>
@@ -261,8 +243,8 @@ wire reset : Reset
 reset <= a
 ```
 
-After reset inference, `reset`{.firrtl} is inferred to the synchronous
-`UInt<1>`{.firrtl} type:
+리셋 추론 후, `reset`{.firrtl}은 동기식으로 추론됩니다.
+`UInt<1>`{.firrtl} 유형으로 추론됩니다:
 
 ``` firrtl
 input a : UInt<1>
@@ -270,10 +252,9 @@ wire reset : UInt<1>
 reset <= a
 ```
 
-Asynchronous resets used in registers will be mapped to a hardware description
-language representation for asynchronous resets.
+레지스터에 사용되는 비동기 재설정은 비동기 재설정을 위한 하드웨어 기술 언어 표현에 매핑됩니다.
 
-The following example demonstrates usage of an asynchronous reset.
+다음 예제는 비동기 리셋의 사용법을 보여줍니다.
 
 ``` firrtl
 input clock : Clock
