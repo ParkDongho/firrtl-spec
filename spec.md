@@ -156,14 +156,6 @@ extmodule MyExternalModule :
   parameter y = 42
 ```
 
-The widths of all externally defined module ports must be specified.  Width
-inference, described in [@sec:width-inference], is not supported for module
-ports.
-
-A common use of an externally defined module is to represent a Verilog module
-that will be written separately and provided together with FIRRTL-generated
-Verilog to downstream tools.
-
 외부에서 정의된 모든 모듈 포트의 너비를 지정해야 합니다. [@sec:width-inference]에 설명된 너비 추론은 모듈 포트에 대해 지원되지 않습니다.
 
 외부에서 정의된 모듈의 일반적인 용도는 별도로 작성되어 다운스트림 도구에 FIRRTL로 생성된 Verilog와 함께 제공될 Verilog 모듈을 나타내는 것입니다.
@@ -276,6 +268,14 @@ only invalidated or is driven by or drives only synchronous resets).
 `Reset`{.firrtl}s, whether synchronous or asynchronous, can be cast to other
 types. Casting between reset types is also legal:
 
+추론 규칙은 다음과 같습니다:
+
+1. 비동기 리셋에 의해 구동되거나 비동기 리셋만 구동되는 추론되지 않은 리셋은 비동기 리셋으로 추론됩니다.
+1. 비동기 및/또는 동기 리셋에 의해 구동되거나 동기 리셋을 모두 구동하는 추론되지 않은 리셋은 오류입니다.
+1. 그렇지 않으면 리셋이 동기식으로 추론됩니다(즉, 추론되지 않은 리셋은 무효화되거나 동기식 리셋에 의해서만 구동되거나 동기식 리셋만 구동됩니다).
+
+동기든 비동기든 `Reset`{.firrtl}은 다른 타입으로 형변환(캐스팅) 할 수 있습니다. 리셋 타입 간에 형변환하는 것도 합법적입니다:
+
 ``` firrtl
 input a : UInt<1>
 output y : AsyncReset
@@ -286,31 +286,17 @@ y <= asAsyncReset(r)
 z <= asUInt(y)
 ```
 
-See [@sec:primitive-operations] for more details on casting.
+캐스팅에 대한 자세한 내용은 [@sec:primitive-operations]를 참조하세요.
 
 ### Analog Type
 
-The analog type specifies that a wire or port can be attached to multiple
-drivers. `Analog`{.firrtl} cannot be used as part of the type of a node or
-register, nor can it be used as part of the datatype of a memory. In this
-respect, it is similar to how `inout`{.firrtl} ports are used in Verilog, and
-FIRRTL analog signals are often used to interface with external Verilog or VHDL
-IP.
+아날로그 타입은 와이어 또는 포트를 여러 드라이버에 연결할 수 있음을 지정합니다. `Analog`{.firrtl}는 노드 또는 레지스터 유형의 일부로 사용할 수 없으며, 메모리의 데이터 유형의 일부로도 사용할 수 없습니다. 이 점에서 Verilog에서 `inout`{.firrtl} 포트가 사용되는 방식과 유사하며, FIRRTL 아날로그 신호는 종종 외부 Verilog 또는 VHDL IP와 인터페이스하는 데 사용됩니다.
 
-In contrast with all other ground types, analog signals cannot appear on either
-side of a connection statement. Instead, analog signals are attached to each
-other with the commutative `attach`{.firrtl} statement. An analog signal may
-appear in any number of attach statements, and a legal circuit may also contain
-analog signals that are never attached. The only primitive operations that may
-be applied to analog signals are casts to other signal types.
+다른 모든 그라운드 타입과 달리 아날로그 신호는 커넥션 문 양쪽에 나타날 수 없습니다. 대신, 아날로그 신호는 정류(commutative) `attach`{.firrtl} 문을 사용하여 서로 연결됩니다. 아날로그 신호는 여러 개의 attach 문에 나타날 수 있으며, 법적 회로에는 연결되지 않은 아날로그 신호도 포함될 수 있습니다. 아날로그 신호에 적용될 수 있는 유일한 프리미티브 연산은 다른 신호 유형으로 형변환하는 것입니다.
 
-When an analog signal appears as a field of an aggregate type, the aggregate
-cannot appear in a standard connection statement.
+아날로그 신호가 aggregate 타입의 필드로 나타나는 경우 aggregate는 표준 연결 구문에 나타날 수 없습니다.
 
-As with integer types, an analog type can represent a multi-bit signal.  When
-analog signals are not given a concrete width, their widths are inferred
-according to a highly restrictive width inference rule, which requires that the
-widths of all arguments to a given attach operation be identical.
+정수 유형과 마찬가지로 아날로그 유형은 다중 비트 신호를 나타낼 수 있습니다. 아날로그 신호에 구체적인 폭이 지정되지 않은 경우, 주어진 연결 연산에 대한 모든 인수의 폭이 동일해야 하는 매우 제한적인 폭 추론 규칙에 따라 폭이 추론됩니다.
 
 ``` firrtl
 Analog<1>  ; 1-bit analog type
@@ -320,31 +306,25 @@ Analog     ; analog type with inferred width
 
 ## Aggregate Types
 
-FIRRTL supports two aggregate types: vectors and bundles.  Aggregate types are
-composed of ground types or other aggregate types.
+FIRRTL supports two aggregate types: vectors and bundles.  Aggregate types are composed of ground types or other aggregate types.
 
 ### Vector Types
 
-A vector type is used to express an ordered sequence of elements of a given
-type. The length of the sequence must be non-negative and known.
+A vector type is used to express an ordered sequence of elements of a given type. The length of the sequence must be non-negative and known.
 
-The following example specifies a ten element vector of 16-bit unsigned
-integers.
+The following example specifies a ten element vector of 16-bit unsigned integers.
 
 ``` firrtl
 UInt<16>[10]
 ```
 
-The next example specifies a ten element vector of unsigned integers of omitted
-but identical bit widths.
+다음 예제는 생략되었지만 동일한 비트 폭의 부호 없는 정수로 구성된 10개의 요소 벡터를 지정합니다.
 
 ``` firrtl
 UInt[10]
 ```
 
-Note that any type, including other aggregate types, may be used as the element
-type of the vector. The following example specifies a twenty element vector,
-each of which is a ten element vector of 16-bit unsigned integers.
+다른 aggregate 타입을 포함한 모든 타입을 벡터의 요소 타입으로 사용할 수 있습니다. 다음 예제에서는 20개의 요소 벡터를 지정하며, 각 요소는 16비트 부호 없는 정수로 구성된 10개의 요소 벡터입니다.
 
 ``` firrtl
 UInt<16>[10][20]
@@ -352,41 +332,31 @@ UInt<16>[10][20]
 
 ### Bundle Types
 
-A bundle type is used to express a collection of nested and named types.  All
-fields in a bundle type must have a given name, and type.
+번들 타입은 중첩 및 명명된 타입의 컬렉션을 표현하는 데 사용됩니다.  번들 타입의 모든 필드에는 지정된 이름과 유형이 있어야 합니다.
 
-The following is an example of a possible type for representing a complex
-number. It has two fields, `real`{.firrtl}, and `imag`{.firrtl}, both 10-bit
-signed integers.
+다음은 복소수를 표현하는 데 사용할 수 있는 타입의 예입니다. 여기에는 `real`{.firrtl}과 `imag`{.firrtl}이라는 두 개의 필드가 있으며, 둘 다 10비트 부호 있는 정수입니다.
 
 ``` firrtl
 {real: SInt<10>, imag: SInt<10>}
 ```
 
-Additionally, a field may optionally be declared with a *flipped* orientation.
+또한 필드는 선택적으로 *반전된* 방향으로 선언할 수 있습니다.
 
 ``` firrtl
 {word: UInt<32>, valid: UInt<1>, flip ready: UInt<1>}
 ```
 
-In a connection between circuit components with bundle types, the data carried
-by the flipped fields flow in the opposite direction as the data carried by the
-non-flipped fields.
+번들 타입이 있는 회로 구성 요소 간의 연결에서 뒤집힌 필드가 전달하는 데이터는 뒤집히지 않은 필드가 전달하는 데이터와 반대 방향으로 흐릅니다.
 
-As an example, consider a module output port declared with the following type:
+예를 들어 다음 타입으로 선언된 모듈 출력 포트를 생각해 보겠습니다:
 
 ``` firrtl
 output a: {word: UInt<32>, valid: UInt<1>, flip ready: UInt<1>}
 ```
 
-In a connection to the `a`{.firrtl} port, the data carried by the
-`word`{.firrtl} and `valid`{.firrtl} sub-fields will flow out of the module,
-while data carried by the `ready`{.firrtl} sub-field will flow into the
-module. More details about how the bundle field orientation affects connections
-are explained in [@sec:connects].
+a`{.firrtl} 포트에 대한 커넥션에서 `word`{.firrtl} 및 `valid`{.firrtl} 하위 필드가 전달하는 데이터는 모듈 외부로 흐르고, `ready`{.firrtl} 하위 필드가 전달하는 데이터는 모듈 내부로 흐르게 됩니다. 번들 필드 방향이 연결에 미치는 영향에 대한 자세한 내용은 [@sec:connects]에 설명되어 있습니다.
 
-As in the case of vector types, a bundle field may be declared with any type,
-including other aggregate types.
+벡터 타입의 경우와 마찬가지로 번들 필드는 다른 aggregate 타입을 포함한 모든 타입으로 선언할 수 있습니다.
 
 ``` firrtl
 {real: {word: UInt<32>, valid: UInt<1>, flip ready: UInt<1>},
@@ -394,32 +364,19 @@ including other aggregate types.
 
 ```
 
-When calculating the final direction of data flow, the orientation of a field is
-applied recursively to all nested types in the field. As an example, consider
-the following module port declared with a bundle type containing a nested bundle
-type.
+데이터 흐름의 최종 방향을 계산할 때 필드의 방향은 필드에 중첩된 모든 유형에 재귀적으로 적용됩니다. 예를 들어 중첩된 번들 유형을 포함하는 번들 유형으로 선언된 다음 모듈 포트를 생각해 보겠습니다.
 
 ``` firrtl
 output myport: {a: UInt, flip b: {c: UInt, flip d: UInt}}
 ```
 
-In a connection to `myport`{.firrtl}, the `a`{.firrtl} sub-field flows out of
-the module.  The `c`{.firrtl} sub-field contained in the `b`{.firrtl} sub-field
-flows into the module, and the `d`{.firrtl} sub-field contained in the
-`b`{.firrtl} sub-field flows out of the module.
+`myport`{.firrtl}에 대한 연결에서 `a`{.firrtl} 하위 필드는 모듈 밖으로 흘러나옵니다.  `b`{.firrtl} 하위 필드에 포함된 `c`{.firrtl} 하위 필드는 모듈로 유입되고, `b`{.firrtl} 하위 필드에 포함된 `d`{.firrtl} 하위 필드는 모듈 밖으로 흘러나옵니다.
 
 ## Passive Types
 
-It is inappropriate for some circuit components to be declared with a type that
-allows for data to flow in both directions. For example, all sub-elements in a
-memory should flow in the same direction. These components are restricted to
-only have a passive type.
+일부 회로 구성 요소가 데이터가 양방향으로 흐르도록 허용하는 유형으로 선언되는 것은 부적절합니다. 예를 들어 메모리의 모든 하위 요소는 같은 방향으로 흘러야 합니다. 이러한 컴포넌트는 패시브 타입만 가질 수 있도록 제한됩니다.
 
-Intuitively, a passive type is a type where all data flows in the same
-direction, and is defined to be a type that recursively contains no fields with
-flipped orientations. Thus all ground types are passive types. Vector types are
-passive if their element type is passive. And bundle types are passive if no
-fields are flipped and if all field types are passive.
+직관적으로 패시브 타입은 모든 데이터가 같은 방향으로 흐르는 타입으로, 방향이 뒤바뀐 필드를 재귀적으로 포함하지 않는 타입으로 정의됩니다. 따라서 모든 접지 타입은 패시브 타입입니다. 벡터 유형은 요소 유형이 패시브인 경우 패시브 유형입니다. 그리고 번들 유형은 반전된 필드가 없고 모든 필드 유형이 패시브인 경우 패시브 유형입니다.
 
 ## Type Equivalence
 
