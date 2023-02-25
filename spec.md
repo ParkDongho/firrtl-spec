@@ -256,18 +256,6 @@ reg y : UInt<8>, clock with : (reset => (reset, UInt(123)))
 ; ...
 ```
 
-Inference rules are as follows:
-
-1. An uninferred reset driven by and/or driving only asynchronous resets will be
-inferred as asynchronous reset.
-1. An uninferred reset driven by and/or driving both asynchronous and synchronous
-resets is an error.
-1. Otherwise, the reset is inferred as synchronous (i.e. the uninferred reset is
-only invalidated or is driven by or drives only synchronous resets).
-
-`Reset`{.firrtl}s, whether synchronous or asynchronous, can be cast to other
-types. Casting between reset types is also legal:
-
 추론 규칙은 다음과 같습니다:
 
 1. 비동기 리셋에 의해 구동되거나 비동기 리셋만 구동되는 추론되지 않은 리셋은 비동기 리셋으로 추론됩니다.
@@ -306,13 +294,13 @@ Analog     ; analog type with inferred width
 
 ## Aggregate Types
 
-FIRRTL supports two aggregate types: vectors and bundles.  Aggregate types are composed of ground types or other aggregate types.
+FIRRTL은 벡터와 번들의 두 가지 aggregate 타입을 지원합니다.  aggregate 타입은 ground 타입 또는 다른 aggregate 타입으로 구성됩니다.
 
 ### Vector Types
 
-A vector type is used to express an ordered sequence of elements of a given type. The length of the sequence must be non-negative and known.
+벡터 유형은 주어진 타입의 요소의 정렬된 시퀀스를 표현하는 데 사용됩니다. 시퀀스의 길이는 음수가 아니며 알려진 길이여야 합니다.
 
-The following example specifies a ten element vector of 16-bit unsigned integers.
+다음 예는 16비트 부호 없는 정수로 구성된 10개의 요소 벡터를 지정합니다.
 
 ``` firrtl
 UInt<16>[10]
@@ -497,10 +485,9 @@ module MyModule :
 
 ## Empty
 
-The empty statement does nothing and is used simply as a placeholder where a
-statement is expected. It is specified using the `skip`{.firrtl} keyword.
+empty statement는 아무 작업도 수행하지 않으며 단순히 statement가 예상되는 자리 표시자로 사용됩니다. `skip`{.firrtl} 키워드를 사용하여 지정합니다.
 
-The following example:
+아래는 예제입니다:
 
 ``` firrtl
 a <= b
@@ -508,25 +495,20 @@ skip
 c <= d
 ```
 
-can be equivalently expressed as:
+와 동일하게 표현할 수 있습니다:
 
 ``` firrtl
 a <= b
 c <= d
 ```
 
-The empty statement is most often used as the `else`{.firrtl} branch in a
-conditional statement, or as a convenient placeholder for removed components
-during transformational passes. See [@sec:conditionals] for details on the
-conditional statement.
+empty statement은 조건문에서 `else`{.firrtl} 분기로 가장 자주 사용되거나 변환 패스 중에 제거된 구성 요소를 위한 편리한 자리 표시자로 사용됩니다. 조건문에 대한 자세한 내용은 [@sec:conditionals]를 참조하세요.
 
 ## Wires
 
-A wire is a named combinational circuit component that can be connected to and
-from using connect statements.
+wire는 연결 문을 사용하여 연결하고 연결할 수 있는 명명된 조합 회로 구성 요소입니다.
 
-The following example demonstrates instantiating a wire with the given name
-`mywire`{.firrtl} and type `UInt`{.firrtl}.
+다음 예제에서는 `mywire`{.firrtl}라는 이름과 `UInt`{.firrtl} 타입으로 wire를 인스턴스화하는 방법을 보여 줍니다.
 
 ``` firrtl
 wire mywire: UInt
@@ -534,16 +516,11 @@ wire mywire: UInt
 
 ## Registers
 
-A register is a named stateful circuit component.  Reads from a register return
-the current value of the element, writes are not visible until after a positive
-edges of the register's clock port.
+레지스터는 명명된 상태 저장 회로 컴포넌트입니다.  레지스터에서 읽기는 요소의 현재 값을 반환하고 쓰기는 레지스터의 클록 포트의 양수 에지가 끝날 때까지 표시되지 않습니다.
 
-The clock signal for a register must be of type `Clock`{.firrtl}.  The type of a
-register must be a passive type (see [@sec:passive-types]).
+레지스터의 클럭 신호는 `Clock`{.firrtl} 유형이어야 합니다.  레지스터의 타입은 패시브 타입이어야 합니다([@sec:passive-types] 참조).
 
-The following example demonstrates instantiating a register with the given name
-`myreg`{.firrtl}, type `SInt`{.firrtl}, and is driven by the clock signal
-`myclock`{.firrtl}.
+다음 예제는 주어진 이름이 `myreg`{.firrtl}이고, 유형이 `SInt`{.firrtl}이며, 클럭 신호 `myclock`{.firrtl}에 의해 구동되는 레지스터를 인스턴스화하는 것을 보여 줍니다.
 
 ``` firrtl
 wire myclock: Clock
@@ -551,18 +528,7 @@ reg myreg: SInt, myclock
 ; ...
 ```
 
-A register may be declared with a reset signal and value.  The register's value
-is updated with the reset value when the reset is asserted.  The reset signal
-must be a `Reset`{.firrtl}, `UInt<1>`{.firrtl}, or `AsyncReset`{.firrtl}, and
-the type of initialization value must be equivalent to the declared type of the
-register (see [@sec:type-equivalence] for details).  The behavior of the
-register depends on the type of the reset signal.  `AsyncReset`{.firrtl} will
-immediately change the value of the register.  `UInt<1>`{.firrtl} will not
-change the value of the register until the next positive edge of the clock
-signal (see [@sec:reset-type]).  `Reset`{.firrtl} is an abstract reset whose
-behavior depends on reset inference.  In the following example, `myreg`{.firrtl}
-is assigned the value `myinit`{.firrtl} when the signal `myreset`{.firrtl} is
-high.
+레지스터는 리셋 신호와 값으로 선언할 수 있습니다.  레지스터의 값은 리셋이 어설트될 때 리셋 값으로 업데이트됩니다.  리셋 신호는 `Reset`{.firrtl}, `UInt<1>`{.firrtl} 또는 `AsyncReset`{.firrtl}이어야 하며, 초기화 값의 유형은 선언된 레지스터의 유형과 동일해야 합니다(자세한 내용은 [@sec:type-equivalence] 참조).  레지스터의 동작은 리셋 신호의 유형에 따라 달라집니다.  `AsyncReset`{.firrtl}은 레지스터의 값을 즉시 변경합니다.  `UInt<1>`{.firrtl}은 클록 신호의 다음 포지티브 에지까지 레지스터 값을 변경하지 않습니다([@sec:reset-type] 참조).  Reset`{.firrtl}은 리셋 추론에 따라 동작이 달라지는 추상 리셋입니다.  다음 예제에서는 신호 `myreset`{.firrtl}이 높을 때 `myreg`{.firrtl}에 `myinit`{.firrtl} 값이 할당됩니다.
 
 ``` firrtl
 wire myclock: Clock
@@ -572,29 +538,20 @@ reg myreg: SInt, myclock with: (reset => (myreset, myinit))
 ; ...
 ```
 
-A register is initialized with an indeterminate value (see
-[@sec:indeterminate-values]).
+레지스터는 불확정 값으로 초기화됩니다([@sec:indeterminate-values] 참조).
 
 ## Invalidates
 
-An invalidate statement is used to indicate that a circuit component contains
-indeterminate values (see [@sec:indeterminate-values]). It is specified as
-follows:
+invalidate 문은 회로 구성 요소에 불확정 값이 포함되어 있음을 나타내는 데 사용됩니다([@sec:불확정-값] 참조). 다음과 같이 지정됩니다:
 
 ``` firrtl
 wire w: UInt
 w is invalid
 ```
 
-Invalidate statements can be applied to any circuit component of any
-type. However, if the circuit component cannot be connected to, then the
-statement has no effect on the component. This allows the invalidate statement
-to be applied to any component, to explicitly ignore initialization coverage
-errors.
+invalidate 문은 모든 유형의 회로 컴포넌트에 적용할 수 있습니다. 그러나 회로 컴포넌트에 연결할 수 없는 경우 해당 문은 컴포넌트에 아무런 영향을 미치지 않습니다. 따라서 무효화 문을 모든 컴포넌트에 적용하여 초기화 범위 오류를 명시적으로 무시할 수 있습니다.
 
-The following example demonstrates the effect of invalidating a variety of
-circuit components with aggregate types. See [@sec:the-invalidate-algorithm] for
-details on the algorithm for determining what is invalidated.
+다음 예제는 aggregate 타입의 다양한 회로 컴포넌트를 무효화할 때의 효과를 보여줍니다. 무효화 대상을 결정하는 알고리즘에 대한 자세한 내용은 [@sec:the-invalidate-algorithm]을 참조하세요.
 
 ``` firrtl
 module MyModule :
@@ -606,7 +563,7 @@ module MyModule :
   w is invalid
 ```
 
-is equivalent to the following:
+는 다음과 같습니다:
 
 ``` firrtl
 module MyModule :
@@ -619,26 +576,19 @@ module MyModule :
   w.b is invalid
 ```
 
-The handing of invalidated components is covered in [@sec:indeterminate-values].
+무효화된 컴포넌트의 전달은 [@sec:indeterminate-values]에서 다룹니다.
 
 ### The Invalidate Algorithm
 
-Invalidating a component with a ground type indicates that the component's value
-is undetermined if the component has sink or duplex flow (see [@sec:flows]).
-Otherwise, the component is unaffected.
+Ground 타입이 있는 컴포넌트를 무효화하면 컴포넌트에 싱크 또는 이중 흐름이 있는 경우 컴포넌트의 값이 결정되지 않음을 나타냅니다([@sec:flows] 참조). 그렇지 않으면 컴포넌트는 영향을 받지 않습니다.
 
-Invalidating a component with a vector type recursively invalidates each
-sub-element in the vector.
+벡터 타입의 컴포넌트를 무효화하면 벡터의 각 하위 엘리먼트가 재귀적으로 무효화됩니다.
 
-Invalidating a component with a bundle type recursively invalidates each
-sub-element in the bundle.
+번들 타입의 컴포넌트를 무효화하면 번들의 각 하위 엘리먼트가 재귀적으로 무효화됩니다.
 
 ## Attaches
 
-The `attach`{.firrtl} statement is used to attach two or more analog signals,
-defining that their values be the same in a commutative fashion that lacks the
-directionality of a regular connection. It can only be applied to signals with
-analog type, and each analog signal may be attached zero or more times.
+`attach`{.firrtl} 문은 두 개 이상의 아날로그 신호를 연결할 때 사용되며, 일반 연결의 방향성이 없는 정류 방식으로 값이 동일하도록 정의합니다. 아날로그 타입의 신호에만 적용할 수 있으며, 각 아날로그 신호는 0회 이상 연결할 수 있습니다.
 
 ``` firrtl
 wire x: Analog<2>
@@ -650,14 +600,9 @@ attach(z, y, x)   ; attach all three signals
 
 ## Nodes
 
-A node is simply a named intermediate value in a circuit. The node must be
-initialized to a value with a passive type and cannot be connected to. Nodes are
-often used to split a complicated compound expression into named
-sub-expressions.
+노드는 단순히 회로에서 명명된 중간 값입니다. 노드는 패시브 타입의 값으로 초기화되어야 하며 연결할 수 없습니다. 노드는 복잡한 복합 표현식을 명명된 하위 표현식으로 분할하는 데 자주 사용됩니다.
 
-The following example demonstrates instantiating a node with the given name
-`mynode`{.firrtl} initialized with the output of a multiplexer (see
-[@sec:multiplexers]).
+다음 예는 멀티플렉서의 출력으로 초기화된 `mynode`{.firrtl}이라는 이름의 노드를 인스턴스화하는 방법을 보여줍니다([@sec:multiplexers] 참조).
 
 ``` firrtl
 wire pred: UInt<1>
@@ -668,13 +613,9 @@ node mynode = mux(pred, a, b)
 
 ## Conditionals
 
-Connections within a conditional statement that connect to previously declared
-components hold only when the given condition is high. The condition must have a
-1-bit unsigned integer type.
+이전에 선언된 구성 요소에 연결하는 조건문 내의 연결은 주어진 조건이 높을 때만 유지됩니다. 조건은 1비트 부호 없는 정수 유형이어야 합니다.
 
-In the following example, the wire `x`{.firrtl} is connected to the input
-`a`{.firrtl} only when the `en`{.firrtl} signal is high. Otherwise, the wire
-`x`{.firrtl} is connected to the input `b`{.firrtl}.
+다음 예제에서 와이어 `x`{.firrtl}은 `en`{.firrtl} 신호가 높을 때만 입력 `a`{.firrtl}에 연결됩니다. 그렇지 않으면 와이어 `x`{.firrtl}은 입력 `b`{.firrtl}에 연결됩니다.
 
 ``` firrtl
 module MyModule :
@@ -690,11 +631,9 @@ module MyModule :
 
 ### Syntactic Shorthands
 
-The `else`{.firrtl} branch of a conditional statement may be omitted, in which
-case a default `else`{.firrtl} branch is supplied consisting of the empty
-statement.
+조건문의 `else`{.firrtl} 브랜치는 생략할 수 있으며, 이 경우 빈 문으로 구성된 기본 `else`{.firrtl} 브랜치가 제공됩니다.
 
-Thus the following example:
+따라서 다음 예제는 다음과 같습니다:
 
 ``` firrtl
 module MyModule :
@@ -706,7 +645,7 @@ module MyModule :
     x <= a
 ```
 
-can be equivalently expressed as:
+와 동일하게 표현할 수 있습니다:
 
 ``` firrtl
 module MyModule :
@@ -720,11 +659,9 @@ module MyModule :
     skip
 ```
 
-To aid readability of long chains of conditional statements, the colon following
-the `else`{.firrtl} keyword may be omitted if the `else`{.firrtl} branch
-consists of a single conditional statement.
+긴 조건문 체인의 가독성을 높이기 위해 `else`{.firrtl} 분기가 단일 조건문으로 구성된 경우 `else`{.firrtl} 키워드 뒤의 콜론은 생략할 수 있습니다.
 
-Thus the following example:
+따라서 다음 예제가 그렇습니다:
 
 ``` firrtl
 module MyModule :
@@ -770,10 +707,7 @@ module MyModule :
     x <= d
 ```
 
-To additionally aid readability, a conditional statement where the contents of
-the `when`{.firrtl} branch consist of a single line may be combined into a
-single line. If an `else`{.firrtl} branch exists, then the `else`{.firrtl}
-keyword must be included on the same line.
+To additionally aid readability, a conditional statement where the contents of the `when`{.firrtl} branch consist of a single line may be combined into a single line. If an `else`{.firrtl} branch exists, then the `else`{.firrtl} keyword must be included on the same line.
 
 The following statement:
 
@@ -784,8 +718,7 @@ else :
   e <= f
 ```
 
-can have the `when`{.firrtl} keyword, the `when`{.firrtl} branch, and the
-`else`{.firrtl} keyword expressed as a single line:
+can have the `when`{.firrtl} keyword, the `when`{.firrtl} branch, and the `else`{.firrtl} keyword expressed as a single line:
 
 ``` firrtl
 when c : a <= b else :
@@ -800,10 +733,7 @@ when c : a <= b else : e <= f
 
 ### Nested Declarations
 
-If a component is declared within a conditional statement, connections to the
-component are unaffected by the condition. In the following example, register
-`myreg1`{.firrtl} is always connected to `a`{.firrtl}, and register
-`myreg2`{.firrtl} is always connected to `b`{.firrtl}.
+If a component is declared within a conditional statement, connections to the component are unaffected by the condition. In the following example, register `myreg1`{.firrtl} is always connected to `a`{.firrtl}, and register `myreg2`{.firrtl} is always connected to `b`{.firrtl}.
 
 ``` firrtl
 module MyModule :
@@ -819,14 +749,11 @@ module MyModule :
     myreg2 <= b
 ```
 
-Intuitively, a line can be drawn between a connection to a component and that
-component's declaration. All conditional statements that are crossed by the line
-apply to that connection.
+Intuitively, a line can be drawn between a connection to a component and that component's declaration. All conditional statements that are crossed by the line apply to that connection.
 
 ### Initialization Coverage
 
-Because of the conditional statement, it is possible to syntactically express
-circuits containing wires that have not been connected to under all conditions.
+Because of the conditional statement, it is possible to syntactically express circuits containing wires that have not been connected to under all conditions.
 
 In the following example, the wire `a`{.firrtl} is connected to the wire
 `w`{.firrtl} when `en`{.firrtl} is high, but it is not specified what is
@@ -841,30 +768,15 @@ module MyModule :
     w <= a
 ```
 
-This is an illegal FIRRTL circuit and an error will be thrown during
-compilation. All wires, memory ports, instance ports, and module ports that can
-be connected to must be connected to under all conditions.  Registers do not
-need to be connected to under all conditions, as it will keep its previous value
-if unconnected.
+This is an illegal FIRRTL circuit and an error will be thrown during compilation. All wires, memory ports, instance ports, and module ports that can be connected to must be connected to under all conditions.  Registers do not need to be connected to under all conditions, as it will keep its previous value if unconnected.
 
 ### Scoping
 
-The conditional statement creates a new *scope* within each of its
-`when`{.firrtl} and `else`{.firrtl} branches. It is an error to refer to any
-component declared within a branch after the branch has ended. As mention in
-[@sec:namespaces], circuit component declarations in a module must be unique
-within the module's flat namespace; this means that shadowing a component in an
-enclosing scope with a component of the same name inside a conditional statement
-is not allowed.
+The conditional statement creates a new *scope* within each of its `when`{.firrtl} and `else`{.firrtl} branches. It is an error to refer to any component declared within a branch after the branch has ended. As mention in [@sec:namespaces], circuit component declarations in a module must be unique within the module's flat namespace; this means that shadowing a component in an enclosing scope with a component of the same name inside a conditional statement is not allowed.
 
 ### Conditional Last Connect Semantics
 
-In the case where a connection to a circuit component is followed by a
-conditional statement containing a connection to the same component, the
-connection is overwritten only when the condition holds. Intuitively, a
-multiplexer is generated such that when the condition is low, the multiplexer
-returns the old value, and otherwise returns the new value.  For details about
-the multiplexer, see [@sec:multiplexers].
+In the case where a connection to a circuit component is followed by a conditional statement containing a connection to the same component, the connection is overwritten only when the condition holds. Intuitively, a multiplexer is generated such that when the condition is low, the multiplexer returns the old value, and otherwise returns the new value.  For details about the multiplexer, see [@sec:multiplexers].
 
 The following example:
 
@@ -888,10 +800,7 @@ wire w: UInt
 w <= mux(c, b, a)
 ```
 
-Because invalid statements assign indeterminate values to components, a FIRRTL
-Compiler is free to choose any specific value for an indeterminate value when
-resolving last connect semantics.  E.g., in the following circuit `w`{.firrtl}
-has an indeterminate value when `c`{.firrtl} is false.
+Because invalid statements assign indeterminate values to components, a FIRRTL Compiler is free to choose any specific value for an indeterminate value when resolving last connect semantics.  E.g., in the following circuit `w`{.firrtl} has an indeterminate value when `c`{.firrtl} is false.
 
 ``` firrtl
 wire a: UInt
@@ -902,8 +811,7 @@ when c :
   w <= a
 ```
 
-A FIRRTL compiler is free to optimize this to the following circuit by assuming
-that `w`{.firrtl} takes on the value of `a`{.firrtl} when `c`{.firrtl} is false.
+A FIRRTL compiler is free to optimize this to the following circuit by assuming that `w`{.firrtl} takes on the value of `a`{.firrtl} when `c`{.firrtl} is false.
 
 ``` firrtl
 wire a: UInt
@@ -914,10 +822,7 @@ w <= a
 
 See [@sec:indeterminate-values] for more information on indeterminate values.
 
-The behavior of conditional connections to circuit components with aggregate
-types can be modeled by first expanding each connect into individual connect
-statements on its ground elements (see [@sec:the-connection-algorithm] for the
-connection algorithm) and then applying the conditional last connect semantics.
+The behavior of conditional connections to circuit components with aggregate types can be modeled by first expanding each connect into individual connect statements on its ground elements (see [@sec:the-connection-algorithm] for the connection algorithm) and then applying the conditional last connect semantics.
 
 For example, the following snippet:
 
@@ -942,10 +847,7 @@ w.a <= mux(c, y.a, x.a)
 w.b <= mux(c, y.b, x.b)
 ```
 
-Similar to the behavior of aggregate types under last connect semantics (see
-[@sec:last-connect-semantics]), the conditional connects to a sub-element of an
-aggregate component only generates a multiplexer for the sub-element that is
-overwritten.
+Similar to the behavior of aggregate types under last connect semantics (see [@sec:last-connect-semantics]), the conditional connects to a sub-element of an aggregate component only generates a multiplexer for the sub-element that is overwritten.
 
 For example, the following snippet:
 
@@ -972,8 +874,7 @@ w.b <= x.b
 
 ## Memories
 
-A memory is an abstract representation of a hardware memory. It is characterized
-by the following parameters.
+A memory is an abstract representation of a hardware memory. It is characterized by the following parameters.
 
 1.  A passive type representing the type of each element in the memory.
 
@@ -993,12 +894,7 @@ by the following parameters.
 6.  A read-under-write flag indicating the behavior when a memory location is
     written to while a read to that location is in progress.
 
-The following example demonstrates instantiating a memory containing 256 complex
-numbers, each with 16-bit signed integer fields for its real and imaginary
-components. It has two read ports, `r1`{.firrtl} and `r2`{.firrtl}, and one
-write port, `w`{.firrtl}. It is combinationally read (read latency is zero
-cycles) and has a write latency of one cycle. Finally, its read-under-write
-behavior is undefined.
+The following example demonstrates instantiating a memory containing 256 complex numbers, each with 16-bit signed integer fields for its real and imaginary components. It has two read ports, `r1`{.firrtl} and `r2`{.firrtl}, and one write port, `w`{.firrtl}. It is combinationally read (read latency is zero cycles) and has a write latency of one cycle. Finally, its read-under-write behavior is undefined.
 
 ``` firrtl
 mem mymem :
@@ -1030,24 +926,17 @@ In the example above, the type of `mymem`{.firrtl} is:
           mask: {real: UInt<1>, imag: UInt<1>}}}
 ```
 
-The following sections describe how a memory's field types are calculated and
-the behavior of each type of memory port.
+The following sections describe how a memory's field types are calculated and the behavior of each type of memory port.
 
 ### Read Ports
 
-If a memory is declared with element type `T`{.firrtl}, has a size less than or
-equal to $2^N$, then its read ports have type:
+If a memory is declared with element type `T`{.firrtl}, has a size less than or equal to $2^N$, then its read ports have type:
 
 ``` firrtl
 {addr: UInt<N>, en: UInt<1>, clk: Clock, flip data: T}
 ```
 
-If the `en`{.firrtl} field is high, then the element value associated with the
-address in the `addr`{.firrtl} field can be retrieved by reading from the
-`data`{.firrtl} field after the appropriate read latency. If the `en`{.firrtl}
-field is low, then the value in the `data`{.firrtl} field, after the appropriate
-read latency, is undefined. The port is driven by the clock signal in the
-`clk`{.firrtl} field.
+If the `en`{.firrtl} field is high, then the element value associated with the address in the `addr`{.firrtl} field can be retrieved by reading from the `data`{.firrtl} field after the appropriate read latency. If the `en`{.firrtl} field is low, then the value in the `data`{.firrtl} field, after the appropriate read latency, is undefined. The port is driven by the clock signal in the `clk`{.firrtl} field.
 
 ### Write Ports
 
@@ -1058,18 +947,9 @@ equal to $2^N$, then its write ports have type:
 {addr: UInt<N>, en: UInt<1>, clk: Clock, data: T, mask: M}
 ```
 
-where `M`{.firrtl} is the mask type calculated from the element type
-`T`{.firrtl}.  Intuitively, the mask type mirrors the aggregate structure of the
-element type except with all ground types replaced with a single bit unsigned
-integer type. The *non-masked portion* of the data value is defined as the set
-of data value leaf sub-elements where the corresponding mask leaf sub-element is
-high.
+where `M`{.firrtl} is the mask type calculated from the element type `T`{.firrtl}.  Intuitively, the mask type mirrors the aggregate structure of the element type except with all ground types replaced with a single bit unsigned integer type. The *non-masked portion* of the data value is defined as the set of data value leaf sub-elements where the corresponding mask leaf sub-element is high.
 
-If the `en`{.firrtl} field is high, then the non-masked portion of the
-`data`{.firrtl} field value is written, after the appropriate write latency, to
-the location indicated by the `addr`{.firrtl} field. If the `en`{.firrtl} field
-is low, then no value is written after the appropriate write latency. The port
-is driven by the clock signal in the `clk`{.firrtl} field.
+If the `en`{.firrtl} field is high, then the non-masked portion of the `data`{.firrtl} field value is written, after the appropriate write latency, to the location indicated by the `addr`{.firrtl} field. If the `en`{.firrtl} field is low, then no value is written after the appropriate write latency. The port is driven by the clock signal in the `clk`{.firrtl} field.
 
 ### Readwrite Ports
 
@@ -1080,66 +960,31 @@ Finally, the readwrite ports have type:
  wdata: T, wmask: M}
 ```
 
-A readwrite port is a single port that, on a given cycle, can be used either as
-a read or a write port. If the readwrite port is not in write mode (the
-`wmode`{.firrtl} field is low), then the `rdata`{.firrtl}, `addr`{.firrtl},
-`en`{.firrtl}, and `clk`{.firrtl} fields constitute its read port fields, and
-should be used accordingly. If the readwrite port is in write mode (the
-`wmode`{.firrtl} field is high), then the `wdata`{.firrtl}, `wmask`{.firrtl},
-`addr`{.firrtl}, `en`{.firrtl}, and `clk`{.firrtl} fields constitute its write
-port fields, and should be used accordingly.
+A readwrite port is a single port that, on a given cycle, can be used either as a read or a write port. If the readwrite port is not in write mode (the `wmode`{.firrtl} field is low), then the `rdata`{.firrtl}, `addr`{.firrtl}, `en`{.firrtl}, and `clk`{.firrtl} fields constitute its read port fields, and should be used accordingly. If the readwrite port is in write mode (the `wmode`{.firrtl} field is high), then the `wdata`{.firrtl}, `wmask`{.firrtl}, `addr`{.firrtl}, `en`{.firrtl}, and `clk`{.firrtl} fields constitute its write port fields, and should be used accordingly.
 
 ### Read Under Write Behavior
 
-The read-under-write flag indicates the value held on a read port's
-`data`{.firrtl} field if its memory location is written to while it is reading.
-The flag may take on three settings: `old`{.firrtl}, `new`{.firrtl}, and
-`undefined`{.firrtl}.
+The read-under-write flag indicates the value held on a read port's `data`{.firrtl} field if its memory location is written to while it is reading. The flag may take on three settings: `old`{.firrtl}, `new`{.firrtl}, and `undefined`{.firrtl}.
 
-If the read-under-write flag is set to `old`{.firrtl}, then a read port always
-returns the value existing in the memory on the same cycle that the read was
-requested.
+If the read-under-write flag is set to `old`{.firrtl}, then a read port always returns the value existing in the memory on the same cycle that the read was requested.
 
-Assuming that a combinational read always returns the value stored in the memory
-(no write forwarding), then intuitively, this is modeled as a combinational read
-from the memory that is then delayed by the appropriate read latency.
+Assuming that a combinational read always returns the value stored in the memory (no write forwarding), then intuitively, this is modeled as a combinational read from the memory that is then delayed by the appropriate read latency.
 
-If the read-under-write flag is set to `new`{.firrtl}, then a read port always
-returns the value existing in the memory on the same cycle that the read was
-made available. Intuitively, this is modeled as a combinational read from the
-memory after delaying the read address by the appropriate read latency.
+If the read-under-write flag is set to `new`{.firrtl}, then a read port always returns the value existing in the memory on the same cycle that the read was made available. Intuitively, this is modeled as a combinational read from the memory after delaying the read address by the appropriate read latency.
 
-If the read-under-write flag is set to `undefined`{.firrtl}, then the value held
-by the read port after the appropriate read latency is undefined.
+If the read-under-write flag is set to `undefined`{.firrtl}, then the value held by the read port after the appropriate read latency is undefined.
 
-For the purpose of defining such collisions, an "active write port" is a write
-port or a readwrite port that is used to initiate a write operation on a given
-clock edge, where `en`{.firrtl} is set and, for a readwriter, `wmode`{.firrtl}
-is set. An "active read port" is a read port or a readwrite port that is used to
-initiate a read operation on a given clock edge, where `en`{.firrtl} is set and,
-for a readwriter, `wmode`{.firrtl} is not set.  Each operation is defined to be
-"active" for the number of cycles set by its corresponding latency, starting
-from the cycle where its inputs were provided to its associated port. Note that
-this excludes combinational reads, which are simply modeled as combinationally
-selecting from stored values
+For the purpose of defining such collisions, an "active write port" is a write port or a readwrite port that is used to initiate a write operation on a given clock edge, where `en`{.firrtl} is set and, for a readwriter, `wmode`{.firrtl} is set. An "active read port" is a read port or a readwrite port that is used to initiate a read operation on a given clock edge, where `en`{.firrtl} is set and, for a readwriter, `wmode`{.firrtl} is not set.  Each operation is defined to be "active" for the number of cycles set by its corresponding latency, starting from the cycle where its inputs were provided to its associated port. Note that this excludes combinational reads, which are simply modeled as combinationally selecting from stored values
 
-For memories with independently clocked ports, a collision between a read
-operation and a write operation with independent clocks is defined to occur when
-the address of an active write port and the address of an active read port are
-the same for overlapping clock periods, or when any portion of a read operation
-overlaps part of a write operation with a matching addresses. In such cases, the
-data that is read out of the read port is undefined.
+For memories with independently clocked ports, a collision between a read operation and a write operation with independent clocks is defined to occur when the address of an active write port and the address of an active read port are the same for overlapping clock periods, or when any portion of a read operation overlaps part of a write operation with a matching addresses. In such cases, the data that is read out of the read port is undefined.
 
 ### Write Under Write Behavior
 
-In all cases, if a memory location is written to by more than one port on the
-same cycle, the stored value is undefined.
+In all cases, if a memory location is written to by more than one port on the same cycle, the stored value is undefined.
 
 ## Instances
 
-FIRRTL modules are instantiated with the instance statement. The following
-example demonstrates creating an instance named `myinstance`{.firrtl} of the
-`MyModule`{.firrtl} module within the top level module `Top`{.firrtl}.
+FIRRTL modules are instantiated with the instance statement. The following example demonstrates creating an instance named `myinstance`{.firrtl} of the `MyModule`{.firrtl} module within the top level module `Top`{.firrtl}.
 
 ``` firrtl
 circuit Top :
@@ -1151,39 +996,21 @@ circuit Top :
     inst myinstance of MyModule
 ```
 
-The resulting instance has a bundle type. Each port of the instantiated module
-is represented by a field in the bundle with the same name and type as the
-port. The fields corresponding to input ports are flipped to indicate their data
-flows in the opposite direction as the output ports.  The `myinstance`{.firrtl}
-instance in the example above has type `{flip a:UInt, b:UInt}`.
+The resulting instance has a bundle type. Each port of the instantiated module is represented by a field in the bundle with the same name and type as the port. The fields corresponding to input ports are flipped to indicate their data flows in the opposite direction as the output ports.  The `myinstance`{.firrtl} instance in the example above has type `{flip a:UInt, b:UInt}`.
 
-Modules have the property that instances can always be *inlined* into the parent
-module without affecting the semantics of the circuit.
+Modules have the property that instances can always be *inlined* into the parent module without affecting the semantics of the circuit.
 
-To disallow infinitely recursive hardware, modules cannot contain instances of
-itself, either directly, or indirectly through instances of other modules it
-instantiates.
+To disallow infinitely recursive hardware, modules cannot contain instances of itself, either directly, or indirectly through instances of other modules it instantiates.
 
 ## Stops
 
-The stop statement is used to halt simulations of the circuit. Backends are free
-to generate hardware to stop a running circuit for the purpose of debugging, but
-this is not required by the FIRRTL specification.
+The stop statement is used to halt simulations of the circuit. Backends are free to generate hardware to stop a running circuit for the purpose of debugging, but this is not required by the FIRRTL specification.
 
-A stop statement requires a clock signal, a halt condition signal that has a
-single bit unsigned integer type, and an integer exit code.
+A stop statement requires a clock signal, a halt condition signal that has a single bit unsigned integer type, and an integer exit code.
 
-For clocked statements that have side effects in the environment (stop, print,
-and verification statements), the order of execution of any such statements that
-are triggered on the same clock edge is determined by their syntactic order in
-the enclosing module. The order of execution of clocked, side-effect-having
-statements in different modules or with different clocks that trigger
-concurrently is undefined.
+For clocked statements that have side effects in the environment (stop, print, and verification statements), the order of execution of any such statements that are triggered on the same clock edge is determined by their syntactic order in the enclosing module. The order of execution of clocked, side-effect-having statements in different modules or with different clocks that trigger concurrently is undefined.
 
-The stop statement has an optional name attribute which can be used to attach
-metadata to the statement. The name is part of the module level
-namespace. However it can never be used in a reference since it is not of any
-valid type.
+The stop statement has an optional name attribute which can be used to attach metadata to the statement. The name is part of the module level namespace. However it can never be used in a reference since it is not of any valid type.
 
 ``` firrtl
 wire clk: Clock
@@ -1193,23 +1020,13 @@ stop(clk, halt, 42) : optional_name
 
 ## Formatted Prints
 
-The formatted print statement is used to print a formatted string during
-simulations of the circuit. Backends are free to generate hardware that relays
-this information to a hardware test harness, but this is not required by the
-FIRRTL specification.
+The formatted print statement is used to print a formatted string during simulations of the circuit. Backends are free to generate hardware that relays this information to a hardware test harness, but this is not required by the FIRRTL specification.
 
-A `printf`{.firrtl} statement requires a clock signal, a print condition signal,
-a format string, and a variable list of argument signals. The condition signal
-must be a single bit unsigned integer type, and the argument signals must each
-have a ground type.
+A `printf`{.firrtl} statement requires a clock signal, a print condition signal, a format string, and a variable list of argument signals. The condition signal must be a single bit unsigned integer type, and the argument signals must each have a ground type.
 
-For information about execution ordering of clocked statements with observable
-environmental side effects, see [@sec:stops].
+For information about execution ordering of clocked statements with observable environmental side effects, see [@sec:stops].
 
-The `printf`{.firrtl} statement has an optional name attribute which can be used
-to attach metadata to the statement. The name is part of the module level
-namespace. However it can never be used in a reference since it is not of any
-valid type.
+The `printf`{.firrtl} statement has an optional name attribute which can be used to attach metadata to the statement. The name is part of the module level namespace. However it can never be used in a reference since it is not of any valid type.
 
 ``` firrtl
 wire clk: Clock
@@ -1219,9 +1036,7 @@ wire b: UInt
 printf(clk, cond, "a in hex: %x, b in decimal:%d.\n", a, b) : optional_name
 ```
 
-On each positive clock edge, when the condition signal is high, the
-`printf`{.firrtl} statement prints out the format string where its argument
-placeholders are substituted with the value of the corresponding argument.
+On each positive clock edge, when the condition signal is high, the `printf`{.firrtl} statement prints out the format string where its argument placeholders are substituted with the value of the corresponding argument.
 
 ### Format Strings
 
@@ -1250,35 +1065,17 @@ Format strings support the following escape characters:
 ## Verification
 
 To facilitate simulation, model checking and formal methods, there are three
-non-synthesizable verification statements available: assert, assume and
-cover. Each type of verification statement requires a clock signal, a predicate
-signal, an enable signal and a string literal.  The predicate and enable
-signals must have single bit unsigned integer type.  Assert and assume use the
-string as an explanatory message.  For cover statements the string indicates a
-suggested comment.  When an assert or assume is violated the explanatory
-message may be issued as guidance.  The explanatory message may be phrased as
-if prefixed by the words "Verifies that\...".
+non-synthesizable verification statements available: assert, assume and cover. Each type of verification statement requires a clock signal, a predicate signal, an enable signal and a string literal.  The predicate and enable signals must have single bit unsigned integer type.  Assert and assume use the string as an explanatory message.  For cover statements the string indicates a suggested comment.  When an assert or assume is violated the explanatory message may be issued as guidance.  The explanatory message may be phrased as if prefixed by the words "Verifies that\...".
 
-Backends are free to generate the corresponding model checking constructs in the
-target language, but this is not required by the FIRRTL specification. Backends
-that do not generate such constructs should issue a warning. For example, the
-SystemVerilog emitter produces SystemVerilog assert, assume and cover
-statements, but the Verilog emitter does not and instead warns the user if any
-verification statements are encountered.
+Backends are free to generate the corresponding model checking constructs in the target language, but this is not required by the FIRRTL specification. Backends that do not generate such constructs should issue a warning. For example, the SystemVerilog emitter produces SystemVerilog assert, assume and cover statements, but the Verilog emitter does not and instead warns the user if any verification statements are encountered.
 
-For information about execution ordering of clocked statements with observable
-environmental side effects, see [@sec:stops].
+For information about execution ordering of clocked statements with observable environmental side effects, see [@sec:stops].
 
-Any verification statement has an optional name attribute which can be used to
-attach metadata to the statement. The name is part of the module level
-namespace. However it can never be used in a reference since it is not of any
-valid type.
+Any verification statement has an optional name attribute which can be used to attach metadata to the statement. The name is part of the module level namespace. However it can never be used in a reference since it is not of any valid type.
 
 ### Assert
 
-The assert statement verifies that the predicate is true on the rising edge of
-any clock cycle when the enable is true. In other words, it verifies that enable
-implies predicate.
+The assert statement verifies that the predicate is true on the rising edge of any clock cycle when the enable is true. In other words, it verifies that enable implies predicate.
 
 ``` firrtl
 wire clk: Clock
@@ -1291,11 +1088,7 @@ assert(clk, pred, en, "X equals Y when Z is valid") : optional_name
 
 ### Assume
 
-The assume statement directs the model checker to disregard any states where the
-enable is true and the predicate is not true at the rising edge of the clock
-cycle. In other words, it reduces the states to be checked to only those where
-enable implies predicate is true by definition. In simulation, assume is treated
-as an assert.
+The assume statement directs the model checker to disregard any states where the enable is true and the predicate is not true at the rising edge of the clock cycle. In other words, it reduces the states to be checked to only those where enable implies predicate is true by definition. In simulation, assume is treated as an assert.
 
 ``` firrtl
 wire clk: Clock
@@ -1308,10 +1101,7 @@ assume(clk, pred, en, "X equals Y when Z is valid") : optional_name
 
 ### Cover
 
-The cover statement verifies that the predicate is true on the rising edge of
-some clock cycle when the enable is true. In other words, it directs the model
-checker to find some way to make both enable and predicate true at some time
-step.
+The cover statement verifies that the predicate is true on the rising edge of some clock cycle when the enable is true. In other words, it directs the model checker to find some way to make both enable and predicate true at some time step.
 The string argument may be emitted as a comment with the cover.
 
 ``` firrtl
@@ -1325,24 +1115,17 @@ cover(clk, pred, en, "X equals Y when Z is valid") : optional_name
 
 # Expressions
 
-FIRRTL expressions are used for creating literal unsigned and signed integers,
-for referring to a declared circuit component, for statically and dynamically
-accessing a nested element within a component, for creating multiplexers, and
-for performing primitive operations.
+FIRRTL expressions are used for creating literal unsigned and signed integers, for referring to a declared circuit component, for statically and dynamically accessing a nested element within a component, for creating multiplexers, and for performing primitive operations.
 
 ## Unsigned Integers
 
-A literal unsigned integer can be created given a non-negative integer value and
-an optional positive bit width. The following example creates a 10-bit unsigned
-integer representing the number 42.
+A literal unsigned integer can be created given a non-negative integer value and an optional positive bit width. The following example creates a 10-bit unsigned integer representing the number 42.
 
 ``` firrtl
 UInt<10>(42)
 ```
 
-Note that it is an error to supply a bit width that is not large enough to fit
-the given value. If the bit width is omitted, then the minimum number of bits
-necessary to fit the given value will be inferred.
+Note that it is an error to supply a bit width that is not large enough to fit the given value. If the bit width is omitted, then the minimum number of bits necessary to fit the given value will be inferred.
 
 ``` firrtl
 UInt(42)
@@ -1350,8 +1133,7 @@ UInt(42)
 
 ## Unsigned Integers from Literal Bits
 
-A literal unsigned integer can alternatively be created given a string
-representing its bit representation and an optional bit width.
+A literal unsigned integer can alternatively be created given a string representing its bit representation and an optional bit width.
 
 The following radices are supported:
 
@@ -1361,21 +1143,14 @@ The following radices are supported:
 
 3.`h`{.firrtl} : For representing hexadecimal numbers.
 
-If a bit width is not given, the number of bits in the bit representation is
-directly represented by the string. The following examples create a 8-bit
-integer representing the number 13.
+If a bit width is not given, the number of bits in the bit representation is directly represented by the string. The following examples create a 8-bit integer representing the number 13.
 
 ``` firrtl
 UInt("b00001101")
 UInt("h0D")
 ```
 
-If the provided bit width is larger than the number of bits required to
-represent the string's value, then the resulting value is equivalent to the
-string zero-extended up to the provided bit width. If the provided bit width is
-smaller than the number of bits represented by the string, then the resulting
-value is equivalent to the string truncated down to the provided bit width. All
-truncated bits must be zero.
+If the provided bit width is larger than the number of bits required to represent the string's value, then the resulting value is equivalent to the string zero-extended up to the provided bit width. If the provided bit width is smaller than the number of bits represented by the string, then the resulting value is equivalent to the string truncated down to the provided bit width. All truncated bits must be zero.
 
 The following examples create a 7-bit integer representing the number 13.
 
@@ -1387,18 +1162,13 @@ UInt<7>("hD")
 
 ## Signed Integers
 
-Similar to unsigned integers, a literal signed integer can be created given an
-integer value and an optional positive bit width. The following example creates
-a 10-bit unsigned integer representing the number -42.
+Similar to unsigned integers, a literal signed integer can be created given an integer value and an optional positive bit width. The following example creates a 10-bit unsigned integer representing the number -42.
 
 ``` firrtl
 SInt<10>(-42)
 ```
 
-Note that it is an error to supply a bit width that is not large enough to fit
-the given value using two's complement representation. If the bit width is
-omitted, then the minimum number of bits necessary to fit the given value will
-be inferred.
+Note that it is an error to supply a bit width that is not large enough to fit the given value using two's complement representation. If the bit width is omitted, then the minimum number of bits necessary to fit the given value will be inferred.
 
 ``` firrtl
 SInt(-42)
@@ -1406,38 +1176,24 @@ SInt(-42)
 
 ## Signed Integers from Literal Bits
 
-Similar to unsigned integers, a literal signed integer can alternatively be
-created given a string representing its bit representation and an optional bit
-width.
+Similar to unsigned integers, a literal signed integer can alternatively be created given a string representing its bit representation and an optional bit width.
 
-The bit representation contains a binary, octal or hex indicator, followed by an
-optional sign, followed by the value.
+The bit representation contains a binary, octal or hex indicator, followed by an optional sign, followed by the value.
 
-If a bit width is not given, the number of bits in the bit representation is the
-minimal bit width to represent the value represented by the string. The
-following examples create a 8-bit integer representing the number -13. For all
-bases, a negative sign acts as if it were a unary negation; in other words, a
-negative literal produces the additive inverse of the unsigned interpretation of
-the digit pattern.
+If a bit width is not given, the number of bits in the bit representation is the minimal bit width to represent the value represented by the string. The following examples create a 8-bit integer representing the number -13. For all bases, a negative sign acts as if it were a unary negation; in other words, a negative literal produces the additive inverse of the unsigned interpretation of the digit pattern.
 
 ``` firrtl
 SInt("b-1101")
 SInt("h-d")
 ```
 
-If the provided bit width is larger than the number of bits represented by the
-string, then the resulting value is unchanged. It is an error to provide a bit
-width smaller than the number of bits required to represent the string's value.
+If the provided bit width is larger than the number of bits represented by the string, then the resulting value is unchanged. It is an error to provide a bit width smaller than the number of bits required to represent the string's value.
 
 ## References
 
-A reference is simply a name that refers to a previously declared circuit
-component. It may refer to a module port, node, wire, register, instance, or
-memory.
+A reference is simply a name that refers to a previously declared circuit component. It may refer to a module port, node, wire, register, instance, or memory.
 
-The following example connects a reference expression `in`{.firrtl}, referring
-to the previously declared port `in`{.firrtl}, to the reference expression
-`out`{.firrtl}, referring to the previously declared port `out`{.firrtl}.
+The following example connects a reference expression `in`{.firrtl}, referring to the previously declared port `in`{.firrtl}, to the reference expression `out`{.firrtl}, referring to the previously declared port `out`{.firrtl}.
 
 ``` firrtl
 module MyModule :
@@ -1446,18 +1202,13 @@ module MyModule :
   out <= in
 ```
 
-In the rest of the document, for brevity, the names of components will be used
-to refer to a reference expression to that component. Thus, the above example
-will be rewritten as "the port `in`{.firrtl} is connected to the port
-`out`{.firrtl}".
+In the rest of the document, for brevity, the names of components will be used to refer to a reference expression to that component. Thus, the above example will be rewritten as "the port `in`{.firrtl} is connected to the port `out`{.firrtl}".
 
 ## Sub-fields
 
-The sub-field expression refers to a sub-element of an expression with a bundle
-type.
+The sub-field expression refers to a sub-element of an expression with a bundle type.
 
-The following example connects the `in`{.firrtl} port to the `a`{.firrtl}
-sub-element of the `out`{.firrtl} port.
+The following example connects the `in`{.firrtl} port to the `a`{.firrtl} sub-element of the `out`{.firrtl} port.
 
 ``` firrtl
 module MyModule :
@@ -1468,12 +1219,9 @@ module MyModule :
 
 ## Sub-indices
 
-The sub-index expression statically refers, by index, to a sub-element of an
-expression with a vector type. The index must be a non-negative integer and
-cannot be equal to or exceed the length of the vector it indexes.
+The sub-index expression statically refers, by index, to a sub-element of an expression with a vector type. The index must be a non-negative integer and cannot be equal to or exceed the length of the vector it indexes.
 
-The following example connects the `in`{.firrtl} port to the fifth sub-element
-of the `out`{.firrtl} port.
+The following example connects the `in`{.firrtl} port to the fifth sub-element of the `out`{.firrtl} port.
 
 ``` firrtl
 module MyModule :
@@ -1484,16 +1232,9 @@ module MyModule :
 
 ## Sub-accesses
 
-The sub-access expression dynamically refers to a sub-element of a vector-typed
-expression using a calculated index. The index must be an expression with an
-unsigned integer type.  An access to an out-of-bounds element results in an 
-indeterminate value (see [@sec:indeterminate-values]).  Each out-of-bounds 
-element is a different indeterminate value.  Sub-access operations with constant
-index may be convereted to sub-index operations even though it converts
-indeterminate-value-on-out-of-bounds behavior to a compile-time error.
+The sub-access expression dynamically refers to a sub-element of a vector-typed expression using a calculated index. The index must be an expression with an unsigned integer type.  An access to an out-of-bounds element results in an indeterminate value (see [@sec:indeterminate-values]).  Each out-of-bounds  element is a different indeterminate value.  Sub-access operations with constant index may be convereted to sub-index operations even though it converts indeterminate-value-on-out-of-bounds behavior to a compile-time error.
 
-The following example connects the n'th sub-element of the `in`{.firrtl} port to
-the `out`{.firrtl} port.
+The following example connects the n'th sub-element of the `in`{.firrtl} port to the `out`{.firrtl} port.
 
 ``` firrtl
 module MyModule :
@@ -1503,9 +1244,7 @@ module MyModule :
   out <= in[n]
 ```
 
-A connection from a sub-access expression can be modeled by conditionally
-connecting from every sub-element in the vector, where the condition holds when
-the dynamic index is equal to the sub-element's static index.
+A connection from a sub-access expression can be modeled by conditionally connecting from every sub-element in the vector, where the condition holds when the dynamic index is equal to the sub-element's static index.
 
 ``` firrtl
 module MyModule :
@@ -1522,9 +1261,7 @@ module MyModule :
     out is invalid
 ```
 
-The following example connects the `in`{.firrtl} port to the n'th sub-element of
-the `out`{.firrtl} port. All other sub-elements of the `out`{.firrtl} port are
-connected from the corresponding sub-elements of the `default`{.firrtl} port.
+The following example connects the `in`{.firrtl} port to the n'th sub-element of the `out`{.firrtl} port. All other sub-elements of the `out`{.firrtl} port are connected from the corresponding sub-elements of the `default`{.firrtl} port.
 
 ``` firrtl
 module MyModule :
@@ -1536,9 +1273,7 @@ module MyModule :
   out[n] <= in
 ```
 
-A connection to a sub-access expression can be modeled by conditionally
-connecting to every sub-element in the vector, where the condition holds when
-the dynamic index is equal to the sub-element's static index.
+A connection to a sub-access expression can be modeled by conditionally connecting to every sub-element in the vector, where the condition holds when the dynamic index is equal to the sub-element's static index.
 
 ``` firrtl
 module MyModule :
@@ -1555,10 +1290,7 @@ module MyModule :
     out[2] <= in
 ```
 
-The following example connects the `in`{.firrtl} port to the m'th
-`UInt`{.firrtl} sub-element of the n'th vector-typed sub-element of the
-`out`{.firrtl} port. All other sub-elements of the `out`{.firrtl} port are
-connected from the corresponding sub-elements of the `default`{.firrtl} port.
+The following example connects the `in`{.firrtl} port to the m'th `UInt`{.firrtl} sub-element of the n'th vector-typed sub-element of the `out`{.firrtl} port. All other sub-elements of the `out`{.firrtl} port are connected from the corresponding sub-elements of the `default`{.firrtl} port.
 
 ``` firrtl
 module MyModule :
@@ -1571,10 +1303,7 @@ module MyModule :
   out[n][m] <= in
 ```
 
-A connection to an expression containing multiple nested sub-access expressions
-can also be modeled by conditionally connecting to every sub-element in the
-expression. However the condition holds only when all dynamic indices are equal
-to all of the sub-element's static indices.
+A connection to an expression containing multiple nested sub-access expressions can also be modeled by conditionally connecting to every sub-element in the expression. However the condition holds only when all dynamic indices are equal to all of the sub-element's static indices.
 
 ``` firrtl
 module MyModule :
@@ -1596,13 +1325,9 @@ module MyModule :
 
 ## Multiplexers
 
-A multiplexer outputs one of two input expressions depending on the value of an
-unsigned selection signal.
+A multiplexer outputs one of two input expressions depending on the value of an unsigned selection signal.
 
-The following example connects to the `c`{.firrtl} port the result of selecting
-between the `a`{.firrtl} and `b`{.firrtl} ports. The `a`{.firrtl} port is
-selected when the `sel`{.firrtl} signal is high, otherwise the `b`{.firrtl} port
-is selected.
+The following example connects to the `c`{.firrtl} port the result of selecting between the `a`{.firrtl} and `b`{.firrtl} ports. The `a`{.firrtl} port is selected when the `sel`{.firrtl} signal is high, otherwise the `b`{.firrtl} port is selected.
 
 ``` firrtl
 module MyModule :
@@ -1630,9 +1355,7 @@ A multiplexer expression is legal only if the following holds.
 
 ## Primitive Operations
 
-All fundamental operations on ground types are expressed as a FIRRTL primitive
-operation. In general, each operation takes some number of argument expressions,
-along with some number of static integer literal parameters.
+All fundamental operations on ground types are expressed as a FIRRTL primitive operation. In general, each operation takes some number of argument expressions, along with some number of static integer literal parameters.
 
 The general form of a primitive operation is expressed as follows:
 
@@ -1640,11 +1363,7 @@ The general form of a primitive operation is expressed as follows:
 op(arg0, arg1, ..., argn, int0, int1, ..., intm)
 ```
 
-The following examples of primitive operations demonstrate adding two
-expressions, `a`{.firrtl} and `b`{.firrtl}, shifting expression `a`{.firrtl}
-left by 3 bits, selecting the fourth bit through and including the seventh bit
-in the `a`{.firrtl} expression, and interpreting the expression `x`{.firrtl} as
-a Clock typed signal.
+The following examples of primitive operations demonstrate adding two expressions, `a`{.firrtl} and `b`{.firrtl}, shifting expression `a`{.firrtl} left by 3 bits, selecting the fourth bit through and including the seventh bit in the `a`{.firrtl} expression, and interpreting the expression `x`{.firrtl} as a Clock typed signal.
 
 ``` firrtl
 add(a, b)
@@ -1653,15 +1372,11 @@ bits(a, 7, 4)
 asClock(x)
 ```
 
-[@sec:primitive-operations] will describe the format and semantics of each
-primitive operation.
+[@sec:primitive-operations] will describe the format and semantics of each primitive operation.
 
 # Primitive Operations {#sec:primitive-operations}
 
-The arguments of all primitive operations must be expressions with ground types,
-while their parameters are static integer literals. Each specific operation can
-place additional restrictions on the number and types of their arguments and
-parameters.
+The arguments of all primitive operations must be expressions with ground types, while their parameters are static integer literals. Each specific operation can place additional restrictions on the number and types of their arguments and parameters.
 
 Notationally, the width of an argument e is represented as w~e~.
 
@@ -1682,8 +1397,7 @@ The add operation result is the sum of e1 and e2 without loss of precision.
 | sub  | (e1,e2)   | ()         | (UInt,UInt)   | UInt        | max(w~e1~,w~e2~)+1          |
 |      |           |            | (SInt,SInt)   | SInt        | max(w~e1~,w~e2~)+1          |
 
-The subtract operation result is e2 subtracted from e1, without loss of
-precision.
+The subtract operation result is e2 subtracted from e1, without loss of precision.
 
 ## Multiply Operation
 
@@ -1692,8 +1406,7 @@ precision.
 | mul  | (e1,e2)   | ()         | (UInt,UInt)   | UInt        | w~e1~+w~e2~                 |
 |      |           |            | (SInt,SInt)   | SInt        | w~e1~+w~e2~                 |
 
-The multiply operation result is the product of e1 and e2, without loss of
-precision.
+The multiply operation result is the product of e1 and e2, without loss of precision.
 
 ## Divide Operation
 
@@ -1703,9 +1416,7 @@ precision.
 | div  | (num,den) | ()         | (UInt,UInt) | UInt        | w~num~       |
 |      |           |            | (SInt,SInt) | SInt        | w~num~+1     |
 
-The divide operation divides num by den, truncating the fractional portion of
-the result. This is equivalent to rounding the result towards zero. The result
-of a division where den is zero is undefined.
+The divide operation divides num by den, truncating the fractional portion of the result. This is equivalent to rounding the result towards zero. The result of a division where den is zero is undefined.
 
 ## Modulus Operation
 
@@ -1714,9 +1425,7 @@ of a division where den is zero is undefined.
 | rem  | (num,den) | ()         | (UInt,UInt) | UInt        | min(w~num~,w~den~) |
 |      |           |            | (SInt,SInt) | SInt        | min(w~num~,w~den~) |
 
-The modulus operation yields the remainder from dividing num by den, keeping the
-sign of the numerator. Together with the divide operator, the modulus operator
-satisfies the relationship below:
+The modulus operation yields the remainder from dividing num by den, keeping the sign of the numerator. Together with the divide operator, the modulus operator satisfies the relationship below:
 
     num = add(mul(den,div(num,den)),rem(num,den))}
 
@@ -1727,10 +1436,7 @@ satisfies the relationship below:
 | lt,leq |           |            | (UInt,UInt)   | UInt        | 1            |
 | gt,geq | (e1,e2)   | ()         | (SInt,SInt)   | UInt        | 1            |
 
-The comparison operations return an unsigned 1 bit signal with value one if e1
-is less than (lt), less than or equal to (leq), greater than (gt), greater than
-or equal to (geq), equal to (eq), or not equal to (neq) e2.  The operation
-returns a value of zero otherwise.
+The comparison operations return an unsigned 1 bit signal with value one if e1 is less than (lt), less than or equal to (leq), greater than (gt), greater than or equal to (geq), equal to (eq), or not equal to (neq) e2.  The operation returns a value of zero otherwise.
 
 ## Padding Operations
 
@@ -1740,9 +1446,7 @@ returns a value of zero otherwise.
 |      |           |            | (SInt)    | SInt        | max(w~e~,n)                 |
 
 
-If e's bit width is smaller than n, then the pad operation zero-extends or
-sign-extends e up to the given width n. Otherwise, the result is simply e. n
-must be non-negative.
+If e's bit width is smaller than n, then the pad operation zero-extends or sign-extends e up to the given width n. Otherwise, the result is simply e. n must be non-negative.
 
 ## Interpret As UInt
 
@@ -1766,8 +1470,7 @@ The interpret as UInt operation reinterprets e's bits as an unsigned integer.
 |        |           |            | (Reset)      | SInt        | 1            |
 |        |           |            | (AsyncReset) | SInt        | 1            |
 
-The interpret as SInt operation reinterprets e's bits as a signed integer
-according to two's complement representation.
+The interpret as SInt operation reinterprets e's bits as a signed integer according to two's complement representation.
 
 ## Interpret as Clock
 
@@ -1779,8 +1482,7 @@ according to two's complement representation.
 |         |           |            | (Reset)      | Clock       | n/a          |
 |         |           |            | (AsyncReset) | Clock       | n/a          |
 
-The result of the interpret as clock operation is the Clock typed signal
-obtained from interpreting a single bit integer as a clock signal.
+The result of the interpret as clock operation is the Clock typed signal obtained from interpreting a single bit integer as a clock signal.
 
 ## Interpret as AsyncReset
 
@@ -1793,8 +1495,7 @@ obtained from interpreting a single bit integer as a clock signal.
 |              |           |            | (Clock)      | AsyncReset  | n/a          |
 |              |           |            | (Reset)      | AsyncReset  | n/a          |
 
-The result of the interpret as asynchronous reset operation is an AsyncReset typed
-signal.
+The result of the interpret as asynchronous reset operation is an AsyncReset typed signal.
 
 ## Shift Left Operation
 
@@ -1803,8 +1504,7 @@ signal.
 | shl  | \(e\)     | \(n\)      | (UInt)    | UInt        | w~e~+n                      |
 |      |           |            | (SInt)    | SInt        | w~e~+n                      |
 
-The shift left operation concatenates n zero bits to the least significant end
-of e. n must be non-negative.
+The shift left operation concatenates n zero bits to the least significant end of e. n must be non-negative.
 
 ## Shift Right Operation
 
@@ -1813,9 +1513,7 @@ of e. n must be non-negative.
 | shr  | \(e\)     | \(n\)      | (UInt)    | UInt        | max(w~e~-n, 1)              |
 |      |           |            | (SInt)    | SInt        | max(w~e~-n, 1)              |
 
-The shift right operation truncates the least significant n bits from e.  If n
-is greater than or equal to the bit-width of e, the resulting value will be zero
-for unsigned types and the sign bit for signed types. n must be non-negative.
+The shift right operation truncates the least significant n bits from e.  If n is greater than or equal to the bit-width of e, the resulting value will be zero for unsigned types and the sign bit for signed types. n must be non-negative.
 
 ## Dynamic Shift Left Operation
 
@@ -1824,8 +1522,7 @@ for unsigned types and the sign bit for signed types. n must be non-negative.
 | dshl | (e1, e2)  | ()         | (UInt, UInt)  | UInt        | w~e1~ + 2`^`w~e2~ - 1       |
 |      |           |            | (SInt, UInt)  | SInt        | w~e1~ + 2`^`w~e2~ - 1       |
 
-The dynamic shift left operation shifts the bits in e1 e2 places towards the
-most significant bit. e2 zeroes are shifted in to the least significant bits.
+The dynamic shift left operation shifts the bits in e1 e2 places towards the most significant bit. e2 zeroes are shifted in to the least significant bits.
 
 ## Dynamic Shift Right Operation
 
@@ -1834,9 +1531,7 @@ most significant bit. e2 zeroes are shifted in to the least significant bits.
 | dshr | (e1, e2)  | ()         | (UInt, UInt)  | UInt        | w~e1~                       |
 |      |           |            | (SInt, UInt)  | SInt        | w~e1~                       |
 
-The dynamic shift right operation shifts the bits in e1 e2 places towards the
-least significant bit. e2 signed or zeroed bits are shifted in to the most
-significant bits, and the e2 least significant bits are truncated.
+The dynamic shift right operation shifts the bits in e1 e2 places towards the least significant bit. e2 signed or zeroed bits are shifted in to the most significant bits, and the e2 least significant bits are truncated.
 
 ## Arithmetic Convert to Signed Operation
 
@@ -1845,8 +1540,7 @@ significant bits, and the e2 least significant bits are truncated.
 | cvt  | \(e\)     | ()         | (UInt)    | SInt        | w~e~+1       |
 |      |           |            | (SInt)    | SInt        | w~e~         |
 
-The result of the arithmetic convert to signed operation is a signed integer
-representing the same numerical value as e.
+The result of the arithmetic convert to signed operation is a signed integer representing the same numerical value as e.
 
 ## Negate Operation
 
@@ -1855,8 +1549,7 @@ representing the same numerical value as e.
 | neg  | \(e\)     | ()         | (UInt)    | SInt        | w~e~+1       |
 |      |           |            | (SInt)    | SInt        | w~e~+1       |
 
-The result of the negate operation is a signed integer representing the negated
-numerical value of e.
+The result of the negate operation is a signed integer representing the negated numerical value of e.
 
 ## Bitwise Complement Operation
 
@@ -1874,10 +1567,7 @@ The bitwise complement operation performs a logical not on each bit in e.
 | and,or,xor | (e1, e2)  | ()         | (UInt,UInt) | UInt        | max(w~e1~,w~e2~) |
 |            |           |            | (SInt,SInt) | UInt        | max(w~e1~,w~e2~) |
 
-The above bitwise operations perform a bitwise and, or, or exclusive or on e1
-and e2. The result has the same width as its widest argument, and any narrower
-arguments are automatically zero-extended or sign-extended to match the width of
-the result before performing the operation.
+The above bitwise operations perform a bitwise and, or, or exclusive or on e1 and e2. The result has the same width as its widest argument, and any narrower arguments are automatically zero-extended or sign-extended to match the width of the result before performing the operation.
 
 ## Bitwise Reduction Operations
 
@@ -1887,16 +1577,9 @@ the result before performing the operation.
 | andr,orr,xorr | \(e\)     | ()         | (UInt)    | UInt        | 1            |
 |               |           |            | (SInt)    | UInt        | 1            |
 
-The bitwise reduction operations correspond to a bitwise and, or, and exclusive
-or operation, reduced over every bit in e.
+The bitwise reduction operations correspond to a bitwise and, or, and exclusive or operation, reduced over every bit in e.
 
-In all cases, the reduction incorporates as an inductive base case the "identity
-value" associated with each operator. This is defined as the value that
-preserves the value of the other argument: one for and (as $x \wedge 1 = x$),
-zero for or (as $x \vee 0 = x$), and zero for xor (as $x \oplus 0 = x$). Note
-that the logical consequence is that the and-reduction of a zero-width
-expression returns a one, while the or- and xor-reductions of a zero-width
-expression both return zero.
+In all cases, the reduction incorporates as an inductive base case the "identity value" associated with each operator. This is defined as the value that preserves the value of the other argument: one for and (as $x \wedge 1 = x$), zero for or (as $x \vee 0 = x$), and zero for xor (as $x \oplus 0 = x$). Note that the logical consequence is that the and-reduction of a zero-width expression returns a one, while the or- and xor-reductions of a zero-width expression both return zero.
 
 ## Concatenate Operation
 
@@ -1905,8 +1588,7 @@ expression both return zero.
 | cat  | (e1,e2)   | ()         | (UInt, UInt)   | UInt        | w~e1~+w~e2~  |
 |      |           |            | (SInt, SInt)   | UInt        | w~e1~+w~e2~  |
 
-The result of the concatenate operation is the bits of e1 concatenated to the
-most significant end of the bits of e2.
+The result of the concatenate operation is the bits of e1 concatenated to the most significant end of the bits of e2.
 
 ## Bit Extraction Operation
 
@@ -1915,9 +1597,7 @@ most significant end of the bits of e2.
 | bits | \(e\)     | (hi,lo)    | (UInt)    | UInt        | hi-lo+1      |
 |      |           |            | (SInt)    | UInt        | hi-lo+1      |
 
-The result of the bit extraction operation are the bits of e between lo
-(inclusive) and hi (inclusive). hi must be greater than or equal to lo.  Both hi
-and lo must be non-negative and strictly less than the bit width of e.
+The result of the bit extraction operation are the bits of e between lo (inclusive) and hi (inclusive). hi must be greater than or equal to lo.  Both hi and lo must be non-negative and strictly less than the bit width of e.
 
 ## Head
 
@@ -1926,8 +1606,7 @@ and lo must be non-negative and strictly less than the bit width of e.
 | head | \(e\)     | \(n\)      | (UInt)    | UInt        | n            |
 |      |           |            | (SInt)    | UInt        | n            |
 
-The result of the head operation are the n most significant bits of e. n must be
-non-negative and less than or equal to the bit width of e.
+The result of the head operation are the n most significant bits of e. n must be non-negative and less than or equal to the bit width of e.
 
 ## Tail
 
@@ -1936,66 +1615,37 @@ non-negative and less than or equal to the bit width of e.
 | tail | \(e\)     | \(n\)      | (UInt)    | UInt        | w~e~-n       |
 |      |           |            | (SInt)    | UInt        | w~e~-n       |
 
-The tail operation truncates the n most significant bits from e. n must be
-non-negative and less than or equal to the bit width of e.
+The tail operation truncates the n most significant bits from e. n must be non-negative and less than or equal to the bit width of e.
 
 # Flows
 
-An expression's flow partially determines the legality of connecting to and from
-the expression. Every expression is classified as either *source*, *sink*, or
-*duplex*. For details on connection rules refer back to [@sec:connects].
+An expression's flow partially determines the legality of connecting to and from the expression. Every expression is classified as either *source*, *sink*, or *duplex*. For details on connection rules refer back to [@sec:connects].
 
-The flow of a reference to a declared circuit component depends on the kind of
-circuit component. A reference to an input port, an instance, a memory, and a
-node, is a source. A reference to an output port is a sink. A reference to a
-wire or register is duplex.
+The flow of a reference to a declared circuit component depends on the kind of circuit component. A reference to an input port, an instance, a memory, and a node, is a source. A reference to an output port is a sink. A reference to a wire or register is duplex.
 
-The flow of a sub-index or sub-access expression is the flow of the vector-typed
-expression it indexes or accesses.
+The flow of a sub-index or sub-access expression is the flow of the vector-typed expression it indexes or accesses.
 
-The flow of a sub-field expression depends upon the orientation of the field. If
-the field is not flipped, its flow is the same flow as the bundle-typed
-expression it selects its field from. If the field is flipped, then its flow is
-the reverse of the flow of the bundle-typed expression it selects its field
-from. The reverse of source is sink, and vice-versa. The reverse of duplex
-remains duplex.
+The flow of a sub-field expression depends upon the orientation of the field. If the field is not flipped, its flow is the same flow as the bundle-typed expression it selects its field from. If the field is flipped, then its flow is the reverse of the flow of the bundle-typed expression it selects its field from. The reverse of source is sink, and vice-versa. The reverse of duplex remains duplex.
 
 The flow of all other expressions are source.
 
 # Width Inference
 
-For all circuit components declared with unspecified widths, the FIRRTL compiler
-will infer the minimum possible width that maintains the legality of all its
-incoming connections. If a component has no incoming connections, and the width
-is unspecified, then an error is thrown to indicate that the width could not be
-inferred.
+For all circuit components declared with unspecified widths, the FIRRTL compiler will infer the minimum possible width that maintains the legality of all its incoming connections. If a component has no incoming connections, and the width is unspecified, then an error is thrown to indicate that the width could not be inferred.
 
-For module input ports with unspecified widths, the inferred width is the
-minimum possible width that maintains the legality of all incoming connections
-to all instantiations of the module.
+For module input ports with unspecified widths, the inferred width is the minimum possible width that maintains the legality of all incoming connections to all instantiations of the module.
 
-The width of a ground-typed multiplexer expression is the maximum of its two
-corresponding input widths. For multiplexing aggregate-typed expressions, the
-resulting widths of each leaf sub-element is the maximum of its corresponding
-two input leaf sub-element widths.
+The width of a ground-typed multiplexer expression is the maximum of its two corresponding input widths. For multiplexing aggregate-typed expressions, the resulting widths of each leaf sub-element is the maximum of its corresponding two input leaf sub-element widths.
 
 The width of each primitive operation is detailed in [@sec:primitive-operations].
 
-The width of the integer literal expressions is detailed in their respective
-sections.
+The width of the integer literal expressions is detailed in their respective sections.
 
 # Combinational Loops
 
-Combinational logic is a section of logic with no registers between gates.
-A combinational loop exists when the output of some combinational logic
-is fed back into the input of that combinational logic with no intervening
-register. FIRRTL does not support combinational loops even if it is possible
-to show that the loop does not exist under actual mux select values.
-Combinational loops are not allowed and designs should not depend on any FIRRTL
-transformation to remove or break such combinational loops.
+Combinational logic is a section of logic with no registers between gates. A combinational loop exists when the output of some combinational logic is fed back into the input of that combinational logic with no intervening register. FIRRTL does not support combinational loops even if it is possible to show that the loop does not exist under actual mux select values. Combinational loops are not allowed and designs should not depend on any FIRRTL transformation to remove or break such combinational loops.
 
-The module `Foo` has a combinational loop and is not legal,
-even though the loop will be removed by last connect semantics.
+The module `Foo` has a combinational loop and is not legal, even though the loop will be removed by last connect semantics.
 ``` firrtl
   module Foo:
     input a: UInt<1>
@@ -2004,8 +1654,7 @@ even though the loop will be removed by last connect semantics.
     b <= a
  ```
 
-The following module `Foo2` has a combinational loop, even if it can be proved
-that `n1` and `n2` never overlap.
+The following module `Foo2` has a combinational loop, even if it can be proved that `n1` and `n2` never overlap.
 ``` firrtl
 module Foo2 :
   input n1: UInt<2>
@@ -2016,8 +1665,7 @@ module Foo2 :
   vec[n2] <= tmp
 ```
 
-Module `Foo3` is another example of an illegal combinational loop, even if it
-only exists at the word level and not at the bit-level.
+Module `Foo3` is another example of an illegal combinational loop, even if it only exists at the word level and not at the bit-level.
 
 ```firrtl
 module Foo3
@@ -2032,30 +1680,21 @@ module Foo3
 
 # Namespaces
 
-All modules in a circuit exist in the same module namespace, and thus must all
-have a unique name.
+All modules in a circuit exist in the same module namespace, and thus must all have a unique name.
 
-Each module has an identifier namespace containing the names of all port and
-circuit component declarations. Thus, all declarations within a module must have
-unique names.
+Each module has an identifier namespace containing the names of all port and circuit component declarations. Thus, all declarations within a module must have unique names.
 
 Within a bundle type declaration, all field names must be unique.
 
 Within a memory declaration, all port names must be unique.
 
-Any modifications to names must preserve the uniqueness of names within a
-namespace.
+Any modifications to names must preserve the uniqueness of names within a namespace.
 
 # Annotations
 
-Annotations encode arbitrary metadata and associate it with zero or more
-targets ([@sec:targets]) in a FIRRTL circuit.
+Annotations encode arbitrary metadata and associate it with zero or more targets ([@sec:targets]) in a FIRRTL circuit.
 
-Annotations are represented as a dictionary, with a "class" field which
-describes which annotation it is, and a "target" field which represents the IR
-object it is attached to. Annotations may have arbitrary additional fields
-attached. Some annotation classes extend other annotations, which effectively
-means that the subclass annotation implies to effect of the parent annotation.
+Annotations are represented as a dictionary, with a "class" field which describes which annotation it is, and a "target" field which represents the IR object it is attached to. Annotations may have arbitrary additional fields attached. Some annotation classes extend other annotations, which effectively means that the subclass annotation implies to effect of the parent annotation.
 
 Annotations are serializable to JSON.
 
@@ -2070,17 +1709,9 @@ Below is an example annotation used to mark some module `foo`{.firrtl}:
 
 ## Targets
 
-A circuit is described, stored, and optimized in a folded representation. For
-example, there may be multiple instances of a module which will eventually
-become multiple physical copies of that module on the die.
+A circuit is described, stored, and optimized in a folded representation. For example, there may be multiple instances of a module which will eventually become multiple physical copies of that module on the die.
 
-Targets are a mechanism to identify specific hardware in specific instances of
-modules in a FIRRTL circuit.  A target consists of a circuit, a root module, an
-optional instance hierarchy, and an optional reference. A target can only
-identify hardware with a name, e.g., a circuit, module, instance, register,
-wire, or node. References may further refer to specific fields or subindices in
-aggregates. A target with no instance hierarchy is local. A target with an
-instance hierarchy is non-local.
+Targets are a mechanism to identify specific hardware in specific instances of modules in a FIRRTL circuit.  A target consists of a circuit, a root module, an optional instance hierarchy, and an optional reference. A target can only identify hardware with a name, e.g., a circuit, module, instance, register, wire, or node. References may further refer to specific fields or subindices in aggregates. A target with no instance hierarchy is local. A target with an instance hierarchy is non-local.
 
 Targets use a shorthand syntax of the form:
 
@@ -2089,19 +1720,15 @@ target = “~” , circuit ,
          [ “|” , module , { “/” (instance) “:” (module) } , [ “>” , ref ] ]
 ```
 
-A reference is a name inside a module and one or more qualifying tokens that
-encode subfields (of a bundle) or subindices (of a vector):
+A reference is a name inside a module and one or more qualifying tokens that encode subfields (of a bundle) or subindices (of a vector):
 
 ```ebnf
 ref = name , { ( "[" , index , "]" ) | ( "." , field ) }
 ```
 
-Targets are specific enough to refer to any specific module in a folded,
-unfolded, or partially folded representation.
+Targets are specific enough to refer to any specific module in a folded, unfolded, or partially folded representation.
 
-To show some examples of what these look like, consider the following example
-circuit. This consists of four instances of module `Baz`, two instances of
-module `Bar`, and one instance of module `Foo`:
+To show some examples of what these look like, consider the following example circuit. This consists of four instances of module `Baz`, two instances of module `Bar`, and one instance of module `Foo`:
 
 ```firrtl
 circuit Foo:
@@ -2115,17 +1742,13 @@ circuit Foo:
     skip
 ```
 
-This circuit can be represented in a _folded_, completely _unfolded_, or in some
-_partially folded_ state.  Figure [@fig:foo-folded] shows the folded
-representation.  Figure [@fig:foo-unfolded] shows the completely unfolded
-representation where each instance is broken out into its own module.
+This circuit can be represented in a _folded_, completely _unfolded_, or in some _partially folded_ state.  Figure [@fig:foo-folded] shows the folded representation.  Figure [@fig:foo-unfolded] shows the completely unfolded representation where each instance is broken out into its own module.
 
 ![A folded representation of circuit Foo](build/img/firrtl-folded-module.eps){#fig:foo-folded width=15%}
 
 ![A completely unfolded representation of circuit Foo](build/img/firrtl-unfolded-module.eps){#fig:foo-unfolded}
 
-Using targets (or multiple targets), any specific module, instance, or
-combination of instances can be expressed. Some examples include:
+Using targets (or multiple targets), any specific module, instance, or combination of instances can be expressed. Some examples include:
 
 Target                   Description
 -----------------------  -------------
@@ -2136,17 +1759,11 @@ Target                   Description
 `~Foo|Foo/b:Bar/c:Baz`   refers to one instance of module `Baz`
 `~Foo|Bar/d:Baz`         refers to two instances of module `Baz`
 
-If a target does not contain an instance path, it is a _local_ target.  A local
-target points to all instances of a module.  If a target contains an instance
-path, it is a _non-local_ target.  A non-local target _may_ not point to all
-instances of a module.  Additionally, a non-local target may have an equivalent
-local target representation.
+If a target does not contain an instance path, it is a _local_ target.  A local target points to all instances of a module.  If a target contains an instance path, it is a _non-local_ target.  A non-local target _may_ not point to all instances of a module.  Additionally, a non-local target may have an equivalent local target representation.
 
 ## Annotation Storage
 
-Annotations may be stored in one or more JSON files using an
-array-of-dictionaries format.  The following shows a valid annotation file
-containing two annotations:
+Annotations may be stored in one or more JSON files using an array-of-dictionaries format.  The following shows a valid annotation file containing two annotations:
 
 ``` json
 [
@@ -2161,9 +1778,7 @@ containing two annotations:
 ]
 ```
 
-Annotations may also be stored in-line along with the FIRRTL circuit by wrapping
-Annotation JSON in `%[ ... ]`.  The following shows the above annotation file
-stored in-line:
+Annotations may also be stored in-line along with the FIRRTL circuit by wrapping Annotation JSON in `%[ ... ]`.  The following shows the above annotation file stored in-line:
 
 ``` firrtl
 circuit Foo: %[[
@@ -2180,33 +1795,17 @@ circuit Foo: %[[
   ; ...
 ```
 
-Any legal JSON is allowed, meaning that the above JSON may be stored "minimized"
-all on one line.
+Any legal JSON is allowed, meaning that the above JSON may be stored "minimized" all on one line.
 
 # Semantics of Values
 
-FIRRTL is defined for 2-state boolean logic.  The behavior of a generated
-circuit in a language, such as Verilog or VHDL, which have multi-state logic, is
-undefined in the presence of values which are not 2-state.  A FIRRTL compiler
-need only respect the 2-state behavior of a circuit.  This is a limitation on
-the scope of what behavior is observable (i.e., a relaxation of the
-["as-if"](https://en.wikipedia.org/wiki/As-if_rule) rule).
+FIRRTL is defined for 2-state boolean logic.  The behavior of a generated circuit in a language, such as Verilog or VHDL, which have multi-state logic, is undefined in the presence of values which are not 2-state.  A FIRRTL compiler need only respect the 2-state behavior of a circuit.  This is a limitation on the scope of what behavior is observable (i.e., a relaxation of the ["as-if"](https://en.wikipedia.org/wiki/As-if_rule) rule).
 
 ## Indeterminate Values
 
-An indeterminate value represents a value which is unknown or unspecified.
-Indeterminate values are generally implementation defined, with constraints
-specified below.  An indeterminate value may be assumed to be any specific
-value (not necessarily literal), at an implementation's discretion, if, in doing
-so, all observable behavior is as if the indeterminate value always took the
-specific value.
+An indeterminate value represents a value which is unknown or unspecified. Indeterminate values are generally implementation defined, with constraints specified below.  An indeterminate value may be assumed to be any specific value (not necessarily literal), at an implementation's discretion, if, in doing so, all observable behavior is as if the indeterminate value always took the specific value.
 
-This allows transformations such as the following, where when `a`{.firrtl} has
-an indeterminate value, the implementation chooses to consistently give it a
-value of `v`{.firrtl}.  An alternate, legal mapping, lets the implementation
-give it the value `42`{.firrtl}.  In both cases, there is no visibility of
-`a`{.firrtl} when it has an indeterminate value which is not mapped to the value
-the implementation chooses.
+This allows transformations such as the following, where when `a`{.firrtl} has an indeterminate value, the implementation chooses to consistently give it a value of `v`{.firrtl}.  An alternate, legal mapping, lets the implementation give it the value `42`{.firrtl}.  In both cases, there is no visibility of `a`{.firrtl} when it has an indeterminate value which is not mapped to the value the implementation chooses.
 
 ``` firrtl
 module IValue :
@@ -2242,76 +1841,39 @@ module IValue :
   o <= a
 ```
 
-The behavior of constructs which cause indeterminate values is implementation
-defined with the following constraints.
+The behavior of constructs which cause indeterminate values is implementation defined with the following constraints.
 
-- Register initialization is done in a consistent way for all registers.  If
-code is generated to randomly initialize some registers (or 0 fill them, etc),
-it should be generated for all registers.
-- All observations of a unique instance of an expression with indeterminate
-value must see the same value at runtime.  Multiple readers of a value will see
-the same runtime value.
-- Indeterminate values captured in stateful elements are not time-varying.
-Time-aware constructs, such as registers, which hold an indeterminate value will
-return the same runtime value unless something changes the value in a normal
-way.  For example, an uninitialized register will return the same value over
-multiple clock cycles until it is written (or reset).
-- The value produced at runtime for an expression which produced an intermediate
-value shall only be a function of the inputs of the expression.  For example, an
-out-of-bounds vector access shall produce the same value for a
-given out-of-bounds index and vector contents.
-- Two constructs with indeterminate values place no constraint on the identity
-of their values.  For example, two uninitialized registers, which therefore
-contain indeterminate values, do not need to be equal under comparison.
+- Register initialization is done in a consistent way for all registers.  If code is generated to randomly initialize some registers (or 0 fill them, etc), it should be generated for all registers.
+- All observations of a unique instance of an expression with indeterminate value must see the same value at runtime.  Multiple readers of a value will see the same runtime value.
+- Indeterminate values captured in stateful elements are not time-varying. Time-aware constructs, such as registers, which hold an indeterminate value will return the same runtime value unless something changes the value in a normal way.  For example, an uninitialized register will return the same value over multiple clock cycles until it is written (or reset).
+- The value produced at runtime for an expression which produced an intermediate value shall only be a function of the inputs of the expression.  For example, an out-of-bounds vector access shall produce the same value for a given out-of-bounds index and vector contents.
+- Two constructs with indeterminate values place no constraint on the identity of their values.  For example, two uninitialized registers, which therefore contain indeterminate values, do not need to be equal under comparison.
 
 # Details about Syntax
 
-FIRRTL's syntax is designed to be human-readable but easily algorithmically
-parsed.
+FIRRTL's syntax is designed to be human-readable but easily algorithmically parsed.
 
-The following characters are allowed in identifiers: upper and lower case
-letters, digits, and `_`{.firrtl}. Identifiers cannot begin with a digit.
+The following characters are allowed in identifiers: upper and lower case letters, digits, and `_`{.firrtl}. Identifiers cannot begin with a digit.
 
-An integer literal in FIRRTL begins with one of the following, where '\#'
-represents a digit between 0 and 9.
+An integer literal in FIRRTL begins with one of the following, where '\#' represents a digit between 0 and 9.
 
-- 'h' : For indicating a hexadecimal number, followed by an optional sign. The
-  rest of the literal must consist of either digits or a letter between 'A' and
-  'F'.
+- 'h' : For indicating a hexadecimal number, followed by an optional sign. The rest of the literal must consist of either digits or a letter between 'A' and 'F'.
 
-- 'o' : For indicating an octal number, followed by an optional sign.  The rest
-  of the literal must consist of digits between 0 and 7.
+- 'o' : For indicating an octal number, followed by an optional sign.  The rest of the literal must consist of digits between 0 and 7.
 
-- 'b' : For indicating a binary number, followed by an optional sign.  The rest
-  of the literal must consist of digits that are either 0 or 1.
+- 'b' : For indicating a binary number, followed by an optional sign.  The rest of the literal must consist of digits that are either 0 or 1.
 
-- '-\#' : For indicating a negative decimal number. The rest of the literal must
-  consist of digits between 0 and 9.
+- '-\#' : For indicating a negative decimal number. The rest of the literal must consist of digits between 0 and 9.
 
-- '\#' : For indicating a positive decimal number. The rest of the literal must
-  consist of digits between 0 and 9.
+- '\#' : For indicating a positive decimal number. The rest of the literal must consist of digits between 0 and 9.
 
-Comments begin with a semicolon and extend until the end of the line.  Commas
-are treated as whitespace, and may be used by the user for clarity if desired.
+Comments begin with a semicolon and extend until the end of the line.  Commas are treated as whitespace, and may be used by the user for clarity if desired.
 
-In FIRRTL, indentation is significant. Indentation must consist of spaces
-only---tabs are illegal characters. The number of spaces appearing before a
-FIRRTL IR statement is used to establish its *indent level*. Statements with the
-same indent level have the same context. The indent level of the
-`circuit`{.firrtl} declaration must be zero.
+In FIRRTL, indentation is significant. Indentation must consist of spaces only---tabs are illegal characters. The number of spaces appearing before a FIRRTL IR statement is used to establish its *indent level*. Statements with the same indent level have the same context. The indent level of the `circuit`{.firrtl} declaration must be zero.
 
-Certain constructs (`circuit`{.firrtl}, `module`{.firrtl}, `when`{.firrtl}, and
-`else`{.firrtl}) create a new sub-context. The indent used on the first line of
-the sub-context establishes the indent level. The indent level of a sub-context
-is one higher than the parent. All statements in the sub-context must be
-indented by the same number of spaces. To end the sub-context, a line must
-return to the indent level of the parent.
+Certain constructs (`circuit`{.firrtl}, `module`{.firrtl}, `when`{.firrtl}, and `else`{.firrtl}) create a new sub-context. The indent used on the first line of the sub-context establishes the indent level. The indent level of a sub-context is one higher than the parent. All statements in the sub-context must be indented by the same number of spaces. To end the sub-context, a line must return to the indent level of the parent.
 
-Since conditional statements (`when`{.firrtl} and `else`{.firrtl}) may be
-nested, it is possible to create a hierarchy of indent levels, each with its own
-number of preceding spaces that must be larger than its parent's and consistent
-among all direct child statements (those that are not children of an even deeper
-conditional statement).
+Since conditional statements (`when`{.firrtl} and `else`{.firrtl}) may be nested, it is possible to create a hierarchy of indent levels, each with its own number of preceding spaces that must be larger than its parent's and consistent among all direct child statements (those that are not children of an even deeper conditional statement).
 
 As a concrete guide, a few consequences of these rules are summarized below:
 
@@ -2319,23 +1881,17 @@ As a concrete guide, a few consequences of these rules are summarized below:
 
 - All `module`{.firrtl} keywords must be indented by the same number of spaces.
 
-- In a module, all port declarations and all statements (that are not children
-  of other statements) must be indented by the same number of spaces.
+- In a module, all port declarations and all statements (that are not children of other statements) must be indented by the same number of spaces.
 
-- The number of spaces comprising the indent level of a module is specific to
-  each module.
+- The number of spaces comprising the indent level of a module is specific to each module.
 
-- The statements comprising a conditional statement's branch must be indented by
-  the same number of spaces.
+- The statements comprising a conditional statement's branch must be indented by the same number of spaces.
 
-- The statements of nested conditional statements establish their own, deeper
-  indent level.
+- The statements of nested conditional statements establish their own, deeper indent level.
 
-- Each `when`{.firrtl} and each `else`{.firrtl} context may have a different
-  number of non-zero spaces in its indent level.
+- Each `when`{.firrtl} and each `else`{.firrtl} context may have a different number of non-zero spaces in its indent level.
 
-As an example illustrating some of these points, the following is a legal FIRRTL
-circuit:
+As an example illustrating some of these points, the following is a legal FIRRTL circuit:
 
 ``` firrtl
 circuit Foo :
@@ -2350,11 +1906,7 @@ circuit Foo :
        b <= not(a)
 ```
 
-All circuits, modules, ports and statements can optionally be followed with the
-info token `@[fileinfo]` where fileinfo is a string containing the source file
-information from where it was generated. The following characters need to be
-escaped with a leading '`\`': '`\n`' (new line), '`\t`' (tab), '`]`' and '`\`'
-itself.
+All circuits, modules, ports and statements can optionally be followed with the info token `@[fileinfo]` where fileinfo is a string containing the source file information from where it was generated. The following characters need to be escaped with a leading '`\`': '`\n`' (new line), '`\t`' (tab), '`]`' and '`\`' itself.
 
 The following example shows the info tokens included:
 
@@ -2375,19 +1927,13 @@ circuit Top : @[myfile.txt 14:8]
 
 # FIRRTL Compiler Implementation Details
 
-This section provides auxiliary information necessary for developers of a FIRRTL
-Compiler _implementation_.  A FIRRTL Compiler is a program that converts FIRRTL
-text to another representation, e.g., Verilog, VHDL, a programming language, or
-a binary program.
+This section provides auxiliary information necessary for developers of a FIRRTL Compiler _implementation_.  A FIRRTL Compiler is a program that converts FIRRTL text to another representation, e.g., Verilog, VHDL, a programming language, or a binary program.
 
 ## Aggregate Type Lowering (Lower Types)
 
-A FIRRTL Compiler should provide a "Lower Types" pass that converts aggregate
-types to ground types.
+A FIRRTL Compiler should provide a "Lower Types" pass that converts aggregate types to ground types.
 
-A FIRRTL Compiler must apply such a pass to the ports of all "public" modules in
-a Verilog/VHDL representation.  Public modules are defined as (1) the top-level
-module and (2) any external modules.
+A FIRRTL Compiler must apply such a pass to the ports of all "public" modules in a Verilog/VHDL representation.  Public modules are defined as (1) the top-level module and (2) any external modules.
 
 A FIRRTL Compiler may apply such a pass to other types in a FIRRTL circuit.
 
@@ -2395,15 +1941,11 @@ The Lower Types algorithm operates as follows:
 
 1. Ground type names are unmodified.
 
-2. Vector types are converted to ground types by appending a suffix, `_<i>`, to
-   the i^th^ element of the vector.  (`<` and `>` are not included in the
-   suffix.)
+2. Vector types are converted to ground types by appending a suffix, `_<i>`, to the i^th^ element of the vector.  (`<` and `>` are not included in the suffix.)
 
-3. Bundle types are converted to ground types by appending a suffix, `_<name>`,
-   to the field called `name`.  (`<` and `>` are not included in the suffix.)
+3. Bundle types are converted to ground types by appending a suffix, `_<name>`, to the field called `name`.  (`<` and `>` are not included in the suffix.)
 
-New names generated by Lower Types must be unique with respect to the current
-namespace (see [@sec:namespaces]).
+New names generated by Lower Types must be unique with respect to the current namespace (see [@sec:namespaces]).
 
 E.g., consider the following wire:
 
@@ -2566,19 +2108,14 @@ circuit =
 
 This is the versioning scheme that applies to version 1.0.0 and later.
 
-The versioning scheme complies with
-[Semantic Versioning 2.0.0](https://semver.org/#semantic-versioning-200).
+The versioning scheme complies with [Semantic Versioning 2.0.0](https://semver.org/#semantic-versioning-200).
 
 Specifically,
 
-The PATCH digit is bumped upon release which only includes non-functional changes,
-such as grammar edits, further examples, and clarifications.
+The PATCH digit is bumped upon release which only includes non-functional changes, such as grammar edits, further examples, and clarifications.
 
 The MINOR digit is bumped for feature additions to the spec.
 
-The MAJOR digit is bumped for backwards-incompatible changes such as features
-being removed from the spec, changing their interpretation, or new required
-features being added to the specification.
+The MAJOR digit is bumped for backwards-incompatible changes such as features being removed from the spec, changing their interpretation, or new required features being added to the specification.
 
-In other words, any `.fir` file that was compliant with `x.y.z` will be compliant
-with `x.Y.Z`, where `Y >= y`, `z` and `Z` can be any number.
+In other words, any `.fir` file that was compliant with `x.y.z` will be compliant with `x.Y.Z`, where `Y >= y`, `z` and `Z` can be any number.
