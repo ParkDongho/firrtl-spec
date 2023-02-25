@@ -685,7 +685,7 @@ module MyModule :
         x <= d
 ```
 
-can be equivalently written as:
+로 동일하게 작성할 수 있습니다:
 
 ``` firrtl
 module MyModule :
@@ -707,9 +707,9 @@ module MyModule :
     x <= d
 ```
 
-To additionally aid readability, a conditional statement where the contents of the `when`{.firrtl} branch consist of a single line may be combined into a single line. If an `else`{.firrtl} branch exists, then the `else`{.firrtl} keyword must be included on the same line.
+가독성을 높이기 위해 `when`{.firrtl} 분기의 내용을 한 줄로 구성하는 조건문을 한 줄로 합칠 수 있습니다. `else`{.firrtl} 분기가 존재하는 경우 `else`{.firrtl} 키워드를 같은 줄에 포함해야 합니다.
 
-The following statement:
+다음 문장을 예로 들어보겠습니다:
 
 ``` firrtl
 when c :
@@ -718,14 +718,14 @@ else :
   e <= f
 ```
 
-can have the `when`{.firrtl} keyword, the `when`{.firrtl} branch, and the `else`{.firrtl} keyword expressed as a single line:
+는 `when`{.firrtl} 키워드, `when`{.firrtl} 브랜치, `else`{.firrtl} 키워드를 한 줄로 표현할 수 있습니다:
 
 ``` firrtl
 when c : a <= b else :
   e <= f
 ```
 
-The `else`{.firrtl} branch may also be added to the single line:
+`else`{.firrtl} 브랜치를 한 줄에 추가할 수도 있습니다:
 
 ``` firrtl
 when c : a <= b else : e <= f
@@ -733,7 +733,7 @@ when c : a <= b else : e <= f
 
 ### Nested Declarations
 
-If a component is declared within a conditional statement, connections to the component are unaffected by the condition. In the following example, register `myreg1`{.firrtl} is always connected to `a`{.firrtl}, and register `myreg2`{.firrtl} is always connected to `b`{.firrtl}.
+컴포넌트가 조건문 내에서 선언되면 컴포넌트에 대한 연결은 조건의 영향을 받지 않습니다. 다음 예제에서 `myreg1`{.firrtl} 레지스터는 항상 `a`{.firrtl}에 연결되고, `myreg2`{.firrtl} 레지스터는 항상 `b`{.firrtl}에 연결됩니다.
 
 ``` firrtl
 module MyModule :
@@ -749,15 +749,13 @@ module MyModule :
     myreg2 <= b
 ```
 
-Intuitively, a line can be drawn between a connection to a component and that component's declaration. All conditional statements that are crossed by the line apply to that connection.
+컴포넌트에 대한 연결과 해당 컴포넌트의 선언 사이에 직관적으로 선을 그릴 수 있습니다. 선이 교차하는 모든 조건문은 해당 연결에 적용됩니다.
 
 ### Initialization Coverage
 
-Because of the conditional statement, it is possible to syntactically express circuits containing wires that have not been connected to under all conditions.
+조건문으로 인해 모든 조건에서 연결되지 않은 전선이 포함된 회로를 구문적으로 표현할 수 있습니다.
 
-In the following example, the wire `a`{.firrtl} is connected to the wire
-`w`{.firrtl} when `en`{.firrtl} is high, but it is not specified what is
-connected to `w`{.firrtl} when `en`{.firrtl} is low.
+다음 예제에서는 `en`{.firrtl}이 높을 때 전선 `a`{.firrtl}이 전선 `w`{.firrtl}에 연결되지만, `en`{.firrtl}이 낮을 때는 `w`{.firrtl}에 무엇이 연결되는지 명시되지 않았습니다.
 
 ``` firrtl
 module MyModule :
@@ -768,17 +766,17 @@ module MyModule :
     w <= a
 ```
 
-This is an illegal FIRRTL circuit and an error will be thrown during compilation. All wires, memory ports, instance ports, and module ports that can be connected to must be connected to under all conditions.  Registers do not need to be connected to under all conditions, as it will keep its previous value if unconnected.
+이는 잘못된 FIRRTL 회로이며 컴파일 중에 오류가 발생합니다. 연결할 수 있는 모든 와이어, 메모리 포트, 인스턴스 포트 및 모듈 포트는 모든 조건에서 연결되어야 합니다.  레지스터는 연결되지 않은 경우 이전 값을 유지하므로 모든 조건에서 연결할 필요는 없습니다.
 
 ### Scoping
 
-The conditional statement creates a new *scope* within each of its `when`{.firrtl} and `else`{.firrtl} branches. It is an error to refer to any component declared within a branch after the branch has ended. As mention in [@sec:namespaces], circuit component declarations in a module must be unique within the module's flat namespace; this means that shadowing a component in an enclosing scope with a component of the same name inside a conditional statement is not allowed.
+조건문은 각각의 `when`{.firrtl} 및 `else`{.firrtl} 브랜치 내에 새로운 *scope*를 생성합니다. 브랜치가 종료된 후에 브랜치 내에서 선언된 컴포넌트를 참조하는 것은 오류입니다. [@sec:namespaces]에서 언급했듯이 모듈의 회로 컴포넌트 선언은 모듈의 플랫 네임스페이스 내에서 고유해야 합니다. 즉, 조건문 내에서 같은 이름의 컴포넌트로 둘러싸는 스코프에 컴포넌트를 섀도잉하는 것은 허용되지 않습니다.
 
 ### Conditional Last Connect Semantics
 
-In the case where a connection to a circuit component is followed by a conditional statement containing a connection to the same component, the connection is overwritten only when the condition holds. Intuitively, a multiplexer is generated such that when the condition is low, the multiplexer returns the old value, and otherwise returns the new value.  For details about the multiplexer, see [@sec:multiplexers].
+회로 구성 요소에 대한 연결 뒤에 동일한 구성 요소에 대한 연결이 포함된 조건문이 뒤따르는 경우 조건이 유지될 때만 연결을 덮어씁니다. 직관적으로 멀티플렉서는 조건이 낮을 때 이전 값을 반환하고 그렇지 않으면 새 값을 반환하도록 생성됩니다.  멀티플렉서에 대한 자세한 내용은 [@sec:multiplexers]를 참조하세요.
 
-The following example:
+다음 예제입니다:
 
 ``` firrtl
 wire a: UInt
@@ -790,7 +788,7 @@ when c :
   w <= b
 ```
 
-can be rewritten equivalently using a multiplexer as follows:
+는 멀티플렉서를 사용하여 다음과 같이 동등하게 재작성할 수 있습니다:
 
 ``` firrtl
 wire a: UInt
@@ -800,7 +798,7 @@ wire w: UInt
 w <= mux(c, b, a)
 ```
 
-Because invalid statements assign indeterminate values to components, a FIRRTL Compiler is free to choose any specific value for an indeterminate value when resolving last connect semantics.  E.g., in the following circuit `w`{.firrtl} has an indeterminate value when `c`{.firrtl} is false.
+유효하지 않은 statement는 컴포넌트에 불확정 값을 할당하기 때문에, FIRRTL 컴파일러는 마지막 연결 의미를 해석할 때 불확정 값에 대해 특정 값을 자유롭게 선택할 수 있습니다.  예를 들어, 다음 회로에서 `c`{.firrtl}가 거짓일 때 `w`{.firrtl}는 불확정 값을 갖습니다.
 
 ``` firrtl
 wire a: UInt
@@ -811,7 +809,7 @@ when c :
   w <= a
 ```
 
-A FIRRTL compiler is free to optimize this to the following circuit by assuming that `w`{.firrtl} takes on the value of `a`{.firrtl} when `c`{.firrtl} is false.
+FIRRTL 컴파일러는 `c`{.firrtl}가 거짓일 때 `w`{.firrtl}가 `a`{.firrtl}의 값을 취한다고 가정하여 이를 다음 회로로 자유롭게 최적화할 수 있습니다.
 
 ``` firrtl
 wire a: UInt
@@ -820,11 +818,11 @@ wire w: UInt
 w <= a
 ```
 
-See [@sec:indeterminate-values] for more information on indeterminate values.
+불확정 값에 대한 자세한 내용은 [@sec:indeterminate-values]을 참조하세요.
 
-The behavior of conditional connections to circuit components with aggregate types can be modeled by first expanding each connect into individual connect statements on its ground elements (see [@sec:the-connection-algorithm] for the connection algorithm) and then applying the conditional last connect semantics.
+집계 유형이 있는 회로 컴포넌트에 대한 조건부 연결의 동작은 먼저 각 연결을 해당 접지 요소의 개별 연결 문으로 확장한 다음(연결 알고리즘에 대해서는 [@sec:the-connection-algorithm] 참조) 조건부 마지막 연결 시맨틱을 적용하여 모델링할 수 있습니다.
 
-For example, the following snippet:
+예를 들어 다음 스니펫이 있습니다:
 
 ``` firrtl
 wire x: {a: UInt, b: UInt}
@@ -836,7 +834,7 @@ when c :
   w <= y
 ```
 
-can be rewritten equivalently as follows:
+는 다음과 같이 동일하게 재작성할 수 있습니다:
 
 ``` firrtl
 wire x: {a:UInt, b:UInt}
@@ -847,9 +845,9 @@ w.a <= mux(c, y.a, x.a)
 w.b <= mux(c, y.b, x.b)
 ```
 
-Similar to the behavior of aggregate types under last connect semantics (see [@sec:last-connect-semantics]), the conditional connects to a sub-element of an aggregate component only generates a multiplexer for the sub-element that is overwritten.
+마지막 연결 의미론에 따른 aggregate 타입의 동작과 유사하게([@sec:last-connect-semantics] 참조), aggregate 구성 요소의 하위 요소에 대한 조건부 연결은 덮어쓰는 하위 요소에 대한 멀티플렉서만 생성합니다.
 
-For example, the following snippet:
+예를 들어 다음 스니펫이 있습니다:
 
 ``` firrtl
 wire x: {a: UInt, b: UInt}
@@ -861,7 +859,7 @@ when c :
   w.a <= y
 ```
 
-can be rewritten equivalently as follows:
+는 다음과 같이 동일하게 재작성할 수 있습니다:
 
 ``` firrtl
 wire x: {a: UInt, b: UInt}
@@ -874,27 +872,21 @@ w.b <= x.b
 
 ## Memories
 
-A memory is an abstract representation of a hardware memory. It is characterized by the following parameters.
+메모리는 하드웨어 메모리를 추상적으로 표현한 것입니다. 다음과 같은 매개변수가 특징입니다.
 
-1.  A passive type representing the type of each element in the memory.
+1.  메모리에 있는 각 요소의 유형을 나타내는 패시브 유형입니다.
 
-2.  A positive integer representing the number of elements in the memory.
+2.  메모리에 있는 요소의 수를 나타내는 양의 정수입니다.
 
-3.  A variable number of named ports, each being a read port, a write port, or
-    readwrite port.
+3.  가변적인 수의 명명된 포트, 각각 읽기 포트, 쓰기 포트 또는 읽기/쓰기 포트입니다.
 
-4.  A non-negative integer indicating the read latency, which is the number of
-    cycles after setting the port's read address before the corresponding
-    element's value can be read from the port's data field.
+4.  읽기 대기 시간을 나타내는 음수가 아닌 정수로, 포트의 읽기 대기 시간을 설정한 후의 포트의 읽기 주소를 설정한 후 해당 요소의 값을 읽을 수 있기까지의 요소의 값을 포트의 데이터 필드에서 읽을 수 있기까지의 사이클 수를 나타내는 음수가 아닌 정수입니다.
 
-5.  A positive integer indicating the write latency, which is the number of
-    cycles after setting the port's write address and data before the
-    corresponding element within the memory holds the new value.
+5.  포트의 쓰기 대기 시간을 나타내는 양의 정수로, 포트의 쓰기 주소를 설정한 후 사이클 수입니다. 포트의 쓰기 주소와 데이터를 설정한 후 메모리 내의 해당 엘리먼트가 메모리 내의 해당 요소가 새 값을 보유하기까지의 사이클 수를 나타내는 양수입니다.
 
-6.  A read-under-write flag indicating the behavior when a memory location is
-    written to while a read to that location is in progress.
+6.  메모리 위치가 쓰여질 때 동작을 나타내는 읽기-언더-쓰기 플래그. 해당 위치에 대한 읽기가 진행 중일 때 동작을 나타내는 플래그입니다.
 
-The following example demonstrates instantiating a memory containing 256 complex numbers, each with 16-bit signed integer fields for its real and imaginary components. It has two read ports, `r1`{.firrtl} and `r2`{.firrtl}, and one write port, `w`{.firrtl}. It is combinationally read (read latency is zero cycles) and has a write latency of one cycle. Finally, its read-under-write behavior is undefined.
+다음 예제에서는 실수 및 허수 구성 요소에 대해 각각 16비트 부호 있는 정수 필드가 있는 256개의 복소수가 포함된 메모리를 인스턴스화하는 방법을 보여줍니다. 이 메모리에는 두 개의 읽기 포트인 `r1`{.firrtl}과 `r2`{.firrtl}, 하나의 쓰기 포트인 `w`{.firrtl}가 있습니다. 이 포트는 조합 읽기(읽기 레이턴시는 0주기)이며 쓰기 레이턴시는 1주기입니다. 마지막으로 읽기-쓰기 동작은 정의되지 않았습니다.
 
 ``` firrtl
 mem mymem :
@@ -908,7 +900,7 @@ mem mymem :
   read-under-write => undefined
 ```
 
-In the example above, the type of `mymem`{.firrtl} is:
+위의 예에서 `mymem`{.firrtl}의 유형은 다음과 같습니다:
 
 ``` firrtl
 {flip r1: {addr: UInt<8>,
@@ -926,65 +918,64 @@ In the example above, the type of `mymem`{.firrtl} is:
           mask: {real: UInt<1>, imag: UInt<1>}}}
 ```
 
-The following sections describe how a memory's field types are calculated and the behavior of each type of memory port.
+다음 섹션에서는 메모리의 필드 유형이 계산되는 방법과 각 메모리 포트 유형의 동작에 대해 설명합니다.
 
 ### Read Ports
 
-If a memory is declared with element type `T`{.firrtl}, has a size less than or equal to $2^N$, then its read ports have type:
+메모리가 요소 유형 `T`{.firrtl}로 선언되고 크기가 $2^N$ 이하인 경우 해당 읽기 포트의 유형은 다음과 같습니다:
 
 ``` firrtl
 {addr: UInt<N>, en: UInt<1>, clk: Clock, flip data: T}
 ```
 
-If the `en`{.firrtl} field is high, then the element value associated with the address in the `addr`{.firrtl} field can be retrieved by reading from the `data`{.firrtl} field after the appropriate read latency. If the `en`{.firrtl} field is low, then the value in the `data`{.firrtl} field, after the appropriate read latency, is undefined. The port is driven by the clock signal in the `clk`{.firrtl} field.
+`en`{.firrtl} 필드가 높으면 적절한 읽기 대기 시간이 지난 후 `data`{.firrtl} 필드에서 읽어서 `addr`{.firrtl} 필드의 주소와 연결된 요소 값을 검색할 수 있습니다. en`{.firrtl} 필드가 낮으면 적절한 읽기 대기 시간 후에 `data`{.firrtl} 필드의 값이 정의되지 않은 것입니다. 포트는 `clk`{.firrtl} 필드의 클럭 신호에 의해 구동됩니다.
 
 ### Write Ports
 
-If a memory is declared with element type `T`{.firrtl}, has a size less than or
-equal to $2^N$, then its write ports have type:
+메모리가 요소 유형 `T`{.firrtl}로 선언되고 크기가 $2^N$ 이하인 경우, 해당 쓰기 포트의 유형은 다음과 같습니다:
 
 ``` firrtl
 {addr: UInt<N>, en: UInt<1>, clk: Clock, data: T, mask: M}
 ```
 
-where `M`{.firrtl} is the mask type calculated from the element type `T`{.firrtl}.  Intuitively, the mask type mirrors the aggregate structure of the element type except with all ground types replaced with a single bit unsigned integer type. The *non-masked portion* of the data value is defined as the set of data value leaf sub-elements where the corresponding mask leaf sub-element is high.
+여기서 `M`{.firrtl}은 요소 유형 `T`{.firrtl}에서 계산된 마스크 유형입니다.  직관적으로 마스크 유형은 모든 접지 유형이 1비트 부호 없는 정수 유형으로 대체된 것을 제외하고는 요소 유형의 집계 구조를 반영합니다. 데이터 값의 *마스크되지 않은 부분*은 해당 마스크 리프 하위 요소가 높은 데이터 값 리프 하위 요소의 집합으로 정의됩니다.
 
-If the `en`{.firrtl} field is high, then the non-masked portion of the `data`{.firrtl} field value is written, after the appropriate write latency, to the location indicated by the `addr`{.firrtl} field. If the `en`{.firrtl} field is low, then no value is written after the appropriate write latency. The port is driven by the clock signal in the `clk`{.firrtl} field.
+`en`{.firrtl} 필드가 높으면 `data`{.firrtl} 필드 값의 마스크되지 않은 부분이 적절한 쓰기 대기 시간 후에 `addr`{.firrtl} 필드에 표시된 위치에 기록됩니다. en`{.firrtl} 필드가 낮으면 적절한 쓰기 레이턴시 후에 값이 기록되지 않습니다. 포트는 `clk`{.firrtl} 필드에 있는 클럭 신호에 의해 구동됩니다.
 
 ### Readwrite Ports
 
-Finally, the readwrite ports have type:
+마지막으로 읽기/쓰기 포트에는 유형이 있습니다:
 
 ``` firrtl
 {addr: UInt<N>, en: UInt<1>, clk: Clock, flip rdata: T, wmode: UInt<1>,
  wdata: T, wmask: M}
 ```
 
-A readwrite port is a single port that, on a given cycle, can be used either as a read or a write port. If the readwrite port is not in write mode (the `wmode`{.firrtl} field is low), then the `rdata`{.firrtl}, `addr`{.firrtl}, `en`{.firrtl}, and `clk`{.firrtl} fields constitute its read port fields, and should be used accordingly. If the readwrite port is in write mode (the `wmode`{.firrtl} field is high), then the `wdata`{.firrtl}, `wmask`{.firrtl}, `addr`{.firrtl}, `en`{.firrtl}, and `clk`{.firrtl} fields constitute its write port fields, and should be used accordingly.
+읽기-쓰기 포트는 주어진 사이클에서 읽기 또는 쓰기 포트로 사용할 수 있는 단일 포트입니다. 읽기-쓰기 포트가 쓰기 모드가 아닌 경우(`wmode`{.firrtl} 필드가 낮음) `rdata`{.firrtl}, `addr`{.firrtl}, `en`{.firrtl} 및 `clk`{.firrtl} 필드가 읽기 포트 필드를 구성하므로 그에 맞게 사용해야 합니다. 읽기/쓰기 포트가 쓰기 모드인 경우(`wmode`{.firrtl} 필드가 높음) `wdata`{.firrtl}, `wmask`{.firrtl}, `addr`{.firrtl}, `en`{.firrtl}, `clk`{.firrtl} 필드가 쓰기 포트 필드를 구성하므로 그에 맞게 사용해야 합니다.
 
 ### Read Under Write Behavior
 
-The read-under-write flag indicates the value held on a read port's `data`{.firrtl} field if its memory location is written to while it is reading. The flag may take on three settings: `old`{.firrtl}, `new`{.firrtl}, and `undefined`{.firrtl}.
+read-under-write 플래그는 읽기 포트의 `data`{.firrtl} 필드에 메모리 위치를 읽는 동안 쓰면 해당 필드에 저장되는 값을 나타냅니다. 플래그는 세 가지 설정이 가능합니다: old`{.firrtl}, `new`{.firrtl}, `undefined`{.firrtl}.
 
-If the read-under-write flag is set to `old`{.firrtl}, then a read port always returns the value existing in the memory on the same cycle that the read was requested.
+read-under-write 플래그가 `old`{.firrtl}로 설정되어 있으면 읽기 포트는 항상 읽기가 요청된 것과 동일한 주기에 메모리에 존재하는 값을 반환합니다.
 
-Assuming that a combinational read always returns the value stored in the memory (no write forwarding), then intuitively, this is modeled as a combinational read from the memory that is then delayed by the appropriate read latency.
+조합 읽기가 항상 메모리에 저장된 값을 반환한다고 가정하면(쓰기 전달 없음), 직관적으로 이것은 적절한 읽기 대기 시간만큼 지연되는 메모리로부터의 조합 읽기로 모델링됩니다.
 
-If the read-under-write flag is set to `new`{.firrtl}, then a read port always returns the value existing in the memory on the same cycle that the read was made available. Intuitively, this is modeled as a combinational read from the memory after delaying the read address by the appropriate read latency.
+read-under-write 플래그가 `new`{.firrtl}로 설정된 경우 읽기 포트는 항상 읽기가 사용 가능하게 된 것과 동일한 주기에 메모리에 존재하는 값을 반환합니다. 직관적으로 이것은 적절한 읽기 대기 시간만큼 읽기 주소를 지연시킨 후 메모리에서 조합하여 읽는 것으로 모델링됩니다.
 
-If the read-under-write flag is set to `undefined`{.firrtl}, then the value held by the read port after the appropriate read latency is undefined.
+read-under-write 플래그가 `undefined`{.firrtl}로 설정된 경우, 적절한 읽기 지연 시간 이후 읽기 포트가 보유하는 값은 정의되지 않습니다.
 
-For the purpose of defining such collisions, an "active write port" is a write port or a readwrite port that is used to initiate a write operation on a given clock edge, where `en`{.firrtl} is set and, for a readwriter, `wmode`{.firrtl} is set. An "active read port" is a read port or a readwrite port that is used to initiate a read operation on a given clock edge, where `en`{.firrtl} is set and, for a readwriter, `wmode`{.firrtl} is not set.  Each operation is defined to be "active" for the number of cycles set by its corresponding latency, starting from the cycle where its inputs were provided to its associated port. Note that this excludes combinational reads, which are simply modeled as combinationally selecting from stored values
+이러한 충돌을 정의하기 위해 "활성 쓰기 포트"는 주어진 클록 에지에서 쓰기 작업을 시작하는 데 사용되는 쓰기 포트 또는 읽기 쓰기 포트로, `en`{.firrtl}이 설정되어 있고 읽기 쓰기의 경우 `wmode`{.firrtl}이 설정되어 있는 포트입니다. "활성 읽기 포트"는 주어진 클록 에지에서 읽기 연산을 시작하는 데 사용되는 읽기 포트 또는 읽기 쓰기 포트로, `en`{.firrtl}이 설정되어 있고 읽기 쓰기의 경우 `wmode`{.firrtl}이 설정되어 있지 않은 경우입니다.  각 오퍼레이션은 해당 포트에 입력이 제공된 사이클부터 시작하여 해당 레이턴시에 의해 설정된 사이클 수 동안 "활성"으로 정의됩니다. 여기에는 단순히 저장된 값에서 조합적으로 선택하는 것으로 모델링되는 조합 읽기는 제외됩니다.
 
-For memories with independently clocked ports, a collision between a read operation and a write operation with independent clocks is defined to occur when the address of an active write port and the address of an active read port are the same for overlapping clock periods, or when any portion of a read operation overlaps part of a write operation with a matching addresses. In such cases, the data that is read out of the read port is undefined.
+독립적으로 클럭이 설정된 포트가 있는 메모리의 경우, 독립적인 클럭을 가진 읽기 작업과 쓰기 작업 간의 충돌은 활성 쓰기 포트의 주소와 활성 읽기 포트의 주소가 겹치는 클럭 주기에 대해 동일하거나 읽기 작업의 일부가 주소가 일치하는 쓰기 작업의 일부와 겹치는 경우 발생하는 것으로 정의됩니다. 이러한 경우 읽기 포트에서 읽혀지는 데이터는 정의되지 않습니다.
 
 ### Write Under Write Behavior
 
-In all cases, if a memory location is written to by more than one port on the same cycle, the stored value is undefined.
+모든 경우에 동일한 사이클에서 두 개 이상의 포트가 메모리 위치에 쓰면 저장된 값은 정의되지 않습니다.
 
 ## Instances
 
-FIRRTL modules are instantiated with the instance statement. The following example demonstrates creating an instance named `myinstance`{.firrtl} of the `MyModule`{.firrtl} module within the top level module `Top`{.firrtl}.
+FIRRTL 모듈은 인스턴스 문으로 인스턴스화됩니다. 다음 예제는 최상위 모듈 `Top`{.firrtl} 내에 `MyModule`{.firrtl} 모듈의 `myinstance`{.firrtl}라는 인스턴스를 생성하는 방법을 보여줍니다.
 
 ``` firrtl
 circuit Top :
@@ -996,21 +987,21 @@ circuit Top :
     inst myinstance of MyModule
 ```
 
-The resulting instance has a bundle type. Each port of the instantiated module is represented by a field in the bundle with the same name and type as the port. The fields corresponding to input ports are flipped to indicate their data flows in the opposite direction as the output ports.  The `myinstance`{.firrtl} instance in the example above has type `{flip a:UInt, b:UInt}`.
+결과 인스턴스에는 번들 유형이 있습니다. 인스턴스화된 모듈의 각 포트는 번들에서 포트와 동일한 이름 및 유형을 가진 필드로 표시됩니다. 입력 포트에 해당하는 필드는 반전되어 데이터가 출력 포트와 반대 방향으로 흐른다는 것을 나타냅니다.  위 예제에서 `myinstance`{.firrtl} 인스턴스의 유형은 `{flip a:UInt, b:UInt}`입니다.
 
-Modules have the property that instances can always be *inlined* into the parent module without affecting the semantics of the circuit.
+모듈은 회로의 의미론에 영향을 주지 않고 인스턴스가 항상 부모 모듈에 *인라인*될 수 있다는 속성을 가지고 있습니다.
 
-To disallow infinitely recursive hardware, modules cannot contain instances of itself, either directly, or indirectly through instances of other modules it instantiates.
+무한 재귀 하드웨어를 허용하지 않기 위해 모듈은 직접적으로 또는 인스턴스화한 다른 모듈의 인스턴스를 통해 간접적으로 자신의 인스턴스를 포함할 수 없습니다.
 
 ## Stops
 
-The stop statement is used to halt simulations of the circuit. Backends are free to generate hardware to stop a running circuit for the purpose of debugging, but this is not required by the FIRRTL specification.
+stop 문은 회로의 시뮬레이션을 중지하는 데 사용됩니다. 백엔드에서는 디버깅을 위해 실행 중인 회로를 중지하는 하드웨어를 자유롭게 생성할 수 있지만, FIRRTL 사양에서는 이를 요구하지 않습니다.
 
-A stop statement requires a clock signal, a halt condition signal that has a single bit unsigned integer type, and an integer exit code.
+중지 문에는 클럭 신호, 단일 비트 부호 없는 정수 타입의 중지 조건 신호, 정수 종료 코드가 필요합니다.
 
-For clocked statements that have side effects in the environment (stop, print, and verification statements), the order of execution of any such statements that are triggered on the same clock edge is determined by their syntactic order in the enclosing module. The order of execution of clocked, side-effect-having statements in different modules or with different clocks that trigger concurrently is undefined.
+환경에서 부작용이 있는 클럭 문(중지, 인쇄 및 확인 문)의 경우 동일한 클럭 에지에서 트리거되는 이러한 문의 실행 순서는 둘러싸는 모듈의 구문 순서에 따라 결정됩니다. 서로 다른 모듈에 있거나 동시에 트리거되는 서로 다른 클럭을 가진 클럭이 있는 부작용이 있는 문의 실행 순서는 정의되지 않습니다.
 
-The stop statement has an optional name attribute which can be used to attach metadata to the statement. The name is part of the module level namespace. However it can never be used in a reference since it is not of any valid type.
+stop 문에는 문에 메타데이터를 첨부하는 데 사용할 수 있는 선택적 이름 속성이 있습니다. 이름은 모듈 수준 네임스페이스의 일부입니다. 그러나 유효한 유형이 아니므로 참조에서는 사용할 수 없습니다.
 
 ``` firrtl
 wire clk: Clock
@@ -1020,13 +1011,13 @@ stop(clk, halt, 42) : optional_name
 
 ## Formatted Prints
 
-The formatted print statement is used to print a formatted string during simulations of the circuit. Backends are free to generate hardware that relays this information to a hardware test harness, but this is not required by the FIRRTL specification.
+형식이 지정된 인쇄 문은 회로 시뮬레이션 중에 형식이 지정된 문자열을 인쇄하는 데 사용됩니다. 백엔드는 이 정보를 하드웨어 테스트 하네스에 전달하는 하드웨어를 자유롭게 생성할 수 있지만, FIRRTL 사양에서는 이를 요구하지 않습니다.
 
-A `printf`{.firrtl} statement requires a clock signal, a print condition signal, a format string, and a variable list of argument signals. The condition signal must be a single bit unsigned integer type, and the argument signals must each have a ground type.
+printf`{.firrtl} 문에는 클록 신호, 인쇄 조건 신호, 형식 문자열 및 가변 인수 신호 목록이 필요합니다. 조건 신호는 단일 비트 부호 없는 정수 유형이어야 하며, 인자 신호는 각각 접지 유형이어야 합니다.
 
-For information about execution ordering of clocked statements with observable environmental side effects, see [@sec:stops].
+관찰 가능한 환경 부작용이 있는 클럭 문의 실행 순서에 대한 자세한 내용은 [@sec:stops]를 참조하십시오.
 
-The `printf`{.firrtl} statement has an optional name attribute which can be used to attach metadata to the statement. The name is part of the module level namespace. However it can never be used in a reference since it is not of any valid type.
+printf`{.firrtl} 문에는 문에 메타데이터를 첨부하는 데 사용할 수 있는 선택적 이름 속성이 있습니다. 이름은 모듈 수준 네임스페이스의 일부입니다. 그러나 유효한 유형이 아니므로 참조에서는 사용할 수 없습니다.
 
 ``` firrtl
 wire clk: Clock
@@ -1036,7 +1027,7 @@ wire b: UInt
 printf(clk, cond, "a in hex: %x, b in decimal:%d.\n", a, b) : optional_name
 ```
 
-On each positive clock edge, when the condition signal is high, the `printf`{.firrtl} statement prints out the format string where its argument placeholders are substituted with the value of the corresponding argument.
+각 양의 클록 에지에서 조건 신호가 높으면 `printf`{.firrtl} 문은 인수 자리 표시자가 해당 인수의 값으로 대체된 형식 문자열을 출력합니다.
 
 ### Format Strings
 
@@ -1064,18 +1055,17 @@ Format strings support the following escape characters:
 
 ## Verification
 
-To facilitate simulation, model checking and formal methods, there are three
-non-synthesizable verification statements available: assert, assume and cover. Each type of verification statement requires a clock signal, a predicate signal, an enable signal and a string literal.  The predicate and enable signals must have single bit unsigned integer type.  Assert and assume use the string as an explanatory message.  For cover statements the string indicates a suggested comment.  When an assert or assume is violated the explanatory message may be issued as guidance.  The explanatory message may be phrased as if prefixed by the words "Verifies that\...".
+시뮬레이션, 모델 확인 및 공식적인 방법을 용이하게 하기 위해 다음 세 가지를 사용할 수 있습니다. 합성할 수 없는 검증 문이 있습니다: 주장, 가정, 커버. 각 유형의 검증 문에는 클럭 신호, 술어 신호, 활성화 신호 및 문자열 리터럴이 필요합니다.  술어 및 활성화 신호는 단일 비트 부호 없는 정수 유형이어야 합니다.  어서트 및 가정은 문자열을 설명 메시지로 사용합니다.  커버문의 경우 문자열은 제안된 설명을 나타냅니다.  어설트 또는 가정이 위반되면 설명 메시지가 지침으로 발행될 수 있습니다.  설명 메시지는 "다음을 확인합니다\..."라는 단어가 접두사로 붙는 것처럼 표현될 수 있습니다.
 
-Backends are free to generate the corresponding model checking constructs in the target language, but this is not required by the FIRRTL specification. Backends that do not generate such constructs should issue a warning. For example, the SystemVerilog emitter produces SystemVerilog assert, assume and cover statements, but the Verilog emitter does not and instead warns the user if any verification statements are encountered.
+백엔드는 대상 언어로 해당 모델 검사 구문을 자유롭게 생성할 수 있지만 FIRRTL 사양에서는 이를 요구하지 않습니다. 이러한 구문을 생성하지 않는 백엔드는 경고를 발행해야 합니다. 예를 들어, SystemVerilog 이미터는 SystemVerilog 주장, 가정 및 커버 문을 생성하지만 Verilog 이미터는 생성하지 않고 대신 확인 문이 발생하면 사용자에게 경고를 표시합니다.
 
-For information about execution ordering of clocked statements with observable environmental side effects, see [@sec:stops].
+관찰 가능한 환경 부작용이 있는 클럭된 문의 실행 순서에 대한 자세한 내용은 [@sec:stops]를 참조하세요.
 
-Any verification statement has an optional name attribute which can be used to attach metadata to the statement. The name is part of the module level namespace. However it can never be used in a reference since it is not of any valid type.
+모든 확인 문에는 문에 메타데이터를 첨부하는 데 사용할 수 있는 선택적 이름 속성이 있습니다. 이름은 모듈 수준 네임스페이스의 일부입니다. 그러나 유효한 유형이 아니므로 참조에는 사용할 수 없습니다.
 
 ### Assert
 
-The assert statement verifies that the predicate is true on the rising edge of any clock cycle when the enable is true. In other words, it verifies that enable implies predicate.
+어설트 문은 활성화가 참일 때 모든 클록 사이클의 상승 에지에서 술어가 참인지 확인합니다. 즉, 활성화가 술어를 내포하는지 확인합니다.
 
 ``` firrtl
 wire clk: Clock
@@ -1088,7 +1078,7 @@ assert(clk, pred, en, "X equals Y when Z is valid") : optional_name
 
 ### Assume
 
-The assume statement directs the model checker to disregard any states where the enable is true and the predicate is not true at the rising edge of the clock cycle. In other words, it reduces the states to be checked to only those where enable implies predicate is true by definition. In simulation, assume is treated as an assert.
+assume statement은 클록 사이클의 상승 에지에서 enable이 참이고 predicate이 참이 아닌 모든 상태를 무시하도록 모델 검사기에 지시합니다. 즉, 검사할 상태를 enable이 정의상 predicate가 true임을 암시하는 상태로만 축소합니다. 시뮬레이션에서 assume은 assert로 취급됩니다.
 
 ``` firrtl
 wire clk: Clock
@@ -1101,8 +1091,7 @@ assume(clk, pred, en, "X equals Y when Z is valid") : optional_name
 
 ### Cover
 
-The cover statement verifies that the predicate is true on the rising edge of some clock cycle when the enable is true. In other words, it directs the model checker to find some way to make both enable and predicate true at some time step.
-The string argument may be emitted as a comment with the cover.
+커버 문은 enable이 true일 때 일부 클록 사이클의 상승 에지에서 술어가 true인지 확인합니다. 즉, 모델 검사기에 특정 시간 단계에서 enable과 predicate를 모두 true로 만드는 방법을 찾도록 지시합니다. 문자열 인수는 cover와 함께 코멘트로 전달될 수 있습니다.
 
 ``` firrtl
 wire clk: Clock
@@ -1115,17 +1104,17 @@ cover(clk, pred, en, "X equals Y when Z is valid") : optional_name
 
 # Expressions
 
-FIRRTL expressions are used for creating literal unsigned and signed integers, for referring to a declared circuit component, for statically and dynamically accessing a nested element within a component, for creating multiplexers, and for performing primitive operations.
+FIRRTL 표현식은 리터럴 부호 없는 정수 및 부호 있는 정수 생성, 선언된 회로 컴포넌트 참조, 컴포넌트 내의 중첩된 요소 정적 및 동적 액세스, 멀티플렉서 생성, 프리미티브 연산 수행에 사용됩니다.
 
 ## Unsigned Integers
 
-A literal unsigned integer can be created given a non-negative integer value and an optional positive bit width. The following example creates a 10-bit unsigned integer representing the number 42.
+음수가 아닌 정수 값과 양수 비트 폭(선택 사항)이 주어지면 리터럴 부호 없는 정수를 생성할 수 있습니다. 다음 예제는 숫자 42를 나타내는 10비트 부호 없는 정수를 생성합니다.
 
 ``` firrtl
 UInt<10>(42)
 ```
 
-Note that it is an error to supply a bit width that is not large enough to fit the given value. If the bit width is omitted, then the minimum number of bits necessary to fit the given value will be inferred.
+주어진 값에 충분히 크지 않은 비트 폭을 입력하는 것은 오류입니다. 비트 폭을 생략하면 주어진 값에 맞는 데 필요한 최소 비트 수가 추론됩니다.
 
 ``` firrtl
 UInt(42)
@@ -1133,26 +1122,26 @@ UInt(42)
 
 ## Unsigned Integers from Literal Bits
 
-A literal unsigned integer can alternatively be created given a string representing its bit representation and an optional bit width.
+또는 비트 표현을 나타내는 문자열과 선택적 비트 폭이 주어지면 리터럴 부호 없는 정수를 생성할 수 있습니다.
 
-The following radices are supported:
+지원되는 래디스는 다음과 같습니다:
 
-1.`b`{.firrtl} : For representing binary numbers.
+1.`b`{.firrtl}: 이진수 표현용.
 
-2.`o`{.firrtl} : For representing octal numbers.
+2.`o`{.firrtl} : 8진수 표현용.
 
-3.`h`{.firrtl} : For representing hexadecimal numbers.
+3.`h`{.firrtl} : 16진수 표현용.
 
-If a bit width is not given, the number of bits in the bit representation is directly represented by the string. The following examples create a 8-bit integer representing the number 13.
+비트 폭을 지정하지 않으면 비트 표현의 비트 수가 문자열로 직접 표현됩니다. 다음 예제는 숫자 13을 나타내는 8비트 정수를 생성합니다.
 
 ``` firrtl
 UInt("b00001101")
 UInt("h0D")
 ```
 
-If the provided bit width is larger than the number of bits required to represent the string's value, then the resulting value is equivalent to the string zero-extended up to the provided bit width. If the provided bit width is smaller than the number of bits represented by the string, then the resulting value is equivalent to the string truncated down to the provided bit width. All truncated bits must be zero.
+제공된 비트 폭이 문자열 값을 나타내는 데 필요한 비트 수보다 큰 경우 결과 값은 제공된 비트 폭까지 0으로 확장된 문자열과 동일합니다. 제공된 비트 폭이 문자열로 표시되는 비트 수보다 작은 경우 결과 값은 제공된 비트 폭으로 잘린 문자열과 같습니다. 잘린 비트는 모두 0이어야 합니다.
 
-The following examples create a 7-bit integer representing the number 13.
+다음 예에서는 숫자 13을 나타내는 7비트 정수를 생성합니다.
 
 ``` firrtl
 UInt<7>("b00001101")
@@ -1162,13 +1151,13 @@ UInt<7>("hD")
 
 ## Signed Integers
 
-Similar to unsigned integers, a literal signed integer can be created given an integer value and an optional positive bit width. The following example creates a 10-bit unsigned integer representing the number -42.
+부호 없는 정수와 마찬가지로 정수 값과 양수 비트 폭(선택 사항)이 주어지면 리터럴 부호 정수를 만들 수 있습니다. 다음 예에서는 숫자 -42를 나타내는 10비트 부호 없는 정수를 생성합니다.
 
 ``` firrtl
 SInt<10>(-42)
 ```
 
-Note that it is an error to supply a bit width that is not large enough to fit the given value using two's complement representation. If the bit width is omitted, then the minimum number of bits necessary to fit the given value will be inferred.
+2의 보수 표현을 사용하여 주어진 값에 맞출 만큼 충분히 크지 않은 비트 폭을 제공하는 것은 오류입니다. 비트 폭을 생략하면 주어진 값에 맞는 데 필요한 최소 비트 수가 추론됩니다.
 
 ``` firrtl
 SInt(-42)
@@ -1176,24 +1165,24 @@ SInt(-42)
 
 ## Signed Integers from Literal Bits
 
-Similar to unsigned integers, a literal signed integer can alternatively be created given a string representing its bit representation and an optional bit width.
+부호가 없는 정수와 마찬가지로, 비트 표현을 나타내는 문자열과 선택적 비트 폭이 주어지면 리터럴 부호 정수를 만들 수도 있습니다.
 
-The bit representation contains a binary, octal or hex indicator, followed by an optional sign, followed by the value.
+비트 표현에는 이진, 8진수 또는 16진수 표시기 다음에 선택적 부호, 값이 포함됩니다.
 
-If a bit width is not given, the number of bits in the bit representation is the minimal bit width to represent the value represented by the string. The following examples create a 8-bit integer representing the number -13. For all bases, a negative sign acts as if it were a unary negation; in other words, a negative literal produces the additive inverse of the unsigned interpretation of the digit pattern.
+비트 폭을 지정하지 않으면 비트 표현의 비트 수가 문자열로 표시되는 값을 나타내는 최소 비트 폭이 됩니다. 다음 예에서는 숫자 -13을 나타내는 8비트 정수를 생성합니다. 모든 염기에 대해 음수 부호는 단항 부호인 것처럼 작동합니다. 즉, 음수 리터럴은 숫자 패턴의 부호 없는 해석의 덧셈 역을 생성합니다.
 
 ``` firrtl
 SInt("b-1101")
 SInt("h-d")
 ```
 
-If the provided bit width is larger than the number of bits represented by the string, then the resulting value is unchanged. It is an error to provide a bit width smaller than the number of bits required to represent the string's value.
+제공된 비트 폭이 문자열로 표시되는 비트 수보다 크면 결과 값이 변경되지 않습니다. 문자열 값을 나타내는 데 필요한 비트 수보다 작은 비트 폭을 제공하면 오류가 발생합니다.
 
 ## References
 
-A reference is simply a name that refers to a previously declared circuit component. It may refer to a module port, node, wire, register, instance, or memory.
+레퍼런스는 단순히 이전에 선언된 회로 컴포넌트를 가리키는 이름입니다. 모듈 포트, 노드, 와이어, 레지스터, 인스턴스 또는 메모리를 나타낼 수 있습니다.
 
-The following example connects a reference expression `in`{.firrtl}, referring to the previously declared port `in`{.firrtl}, to the reference expression `out`{.firrtl}, referring to the previously declared port `out`{.firrtl}.
+다음 예는 이전에 선언된 포트 `in`{.firrtl}을 참조하는 참조 표현식 `in`{.firrtl}을 이전에 선언된 포트 `out`{.firrtl}을 참조하는 참조 표현식 `out`{.firrtl}에 연결합니다.
 
 ``` firrtl
 module MyModule :
@@ -1202,13 +1191,13 @@ module MyModule :
   out <= in
 ```
 
-In the rest of the document, for brevity, the names of components will be used to refer to a reference expression to that component. Thus, the above example will be rewritten as "the port `in`{.firrtl} is connected to the port `out`{.firrtl}".
+이 문서의 나머지 부분에서는 간결성을 위해 컴포넌트의 이름을 해당 컴포넌트에 대한 참조 표현식을 참조하는 데 사용할 것입니다. 따라서 위의 예제는 "포트 `in`{.firrtl}은 포트 `out`{.firrtl}에 연결됩니다."로 다시 작성됩니다.
 
 ## Sub-fields
 
-The sub-field expression refers to a sub-element of an expression with a bundle type.
+하위 필드 표현식은 번들 유형이 있는 표현식의 하위 요소를 나타냅니다.
 
-The following example connects the `in`{.firrtl} port to the `a`{.firrtl} sub-element of the `out`{.firrtl} port.
+다음 예는 `in`{.firrtl} 포트를 `out`{.firrtl} 포트의 `a`{.firrtl} 하위 요소에 연결합니다.
 
 ``` firrtl
 module MyModule :
@@ -1219,9 +1208,9 @@ module MyModule :
 
 ## Sub-indices
 
-The sub-index expression statically refers, by index, to a sub-element of an expression with a vector type. The index must be a non-negative integer and cannot be equal to or exceed the length of the vector it indexes.
+하위 인덱스 표현식은 인덱스를 통해 벡터 유형을 가진 표현식의 하위 요소를 정적으로 참조합니다. 인덱스는 음수가 아닌 정수여야 하며 인덱싱하는 벡터의 길이와 같거나 초과할 수 없습니다.
 
-The following example connects the `in`{.firrtl} port to the fifth sub-element of the `out`{.firrtl} port.
+다음 예제는 `in`{.firrtl} 포트를 `out`{.firrtl} 포트의 다섯 번째 하위 요소에 연결합니다.
 
 ``` firrtl
 module MyModule :
@@ -1232,9 +1221,9 @@ module MyModule :
 
 ## Sub-accesses
 
-The sub-access expression dynamically refers to a sub-element of a vector-typed expression using a calculated index. The index must be an expression with an unsigned integer type.  An access to an out-of-bounds element results in an indeterminate value (see [@sec:indeterminate-values]).  Each out-of-bounds  element is a different indeterminate value.  Sub-access operations with constant index may be convereted to sub-index operations even though it converts indeterminate-value-on-out-of-bounds behavior to a compile-time error.
+하위 액세스 표현식은 계산된 인덱스를 사용하여 벡터 유형 표현식의 하위 요소를 동적으로 참조합니다. 인덱스는 부호 없는 정수 타입의 표현식이어야 합니다.  범위를 벗어난 요소에 액세스하면 불확정 값이 생성됩니다([@sec:indeterminate-values] 참조).  범위를 벗어난 요소는 각각 다른 불확정 값입니다.  상수 인덱스가 있는 하위 액세스 연산은 범위를 벗어난 불확정 값에 대한 동작을 컴파일 타임 오류로 변환하더라도 하위 인덱스 연산으로 변환될 수 있습니다.
 
-The following example connects the n'th sub-element of the `in`{.firrtl} port to the `out`{.firrtl} port.
+다음 예제는 `in`{.firrtl} 포트의 n번째 하위 요소를 `out`{.firrtl} 포트에 연결합니다.
 
 ``` firrtl
 module MyModule :
@@ -1244,7 +1233,7 @@ module MyModule :
   out <= in[n]
 ```
 
-A connection from a sub-access expression can be modeled by conditionally connecting from every sub-element in the vector, where the condition holds when the dynamic index is equal to the sub-element's static index.
+하위 액세스 표현식의 연결은 벡터의 모든 하위 요소에서 조건부로 연결하여 모델링할 수 있으며, 여기서 조건은 동적 인덱스가 하위 요소의 정적 인덱스와 같을 때 유지됩니다.
 
 ``` firrtl
 module MyModule :
@@ -1261,7 +1250,7 @@ module MyModule :
     out is invalid
 ```
 
-The following example connects the `in`{.firrtl} port to the n'th sub-element of the `out`{.firrtl} port. All other sub-elements of the `out`{.firrtl} port are connected from the corresponding sub-elements of the `default`{.firrtl} port.
+다음 예는 `in`{.firrtl} 포트를 `out`{.firrtl} 포트의 n번째 하위 요소에 연결합니다. out`{.firrtl} 포트의 다른 모든 하위 요소는 `default`{.firrtl} 포트의 해당 하위 요소에서 연결됩니다.
 
 ``` firrtl
 module MyModule :
@@ -1273,7 +1262,7 @@ module MyModule :
   out[n] <= in
 ```
 
-A connection to a sub-access expression can be modeled by conditionally connecting to every sub-element in the vector, where the condition holds when the dynamic index is equal to the sub-element's static index.
+하위 액세스 표현식에 대한 연결은 벡터의 모든 하위 요소에 조건부로 연결하여 모델링할 수 있으며, 여기서 조건은 동적 인덱스가 하위 요소의 정적 인덱스와 같을 때 유지됩니다.
 
 ``` firrtl
 module MyModule :
@@ -1290,7 +1279,7 @@ module MyModule :
     out[2] <= in
 ```
 
-The following example connects the `in`{.firrtl} port to the m'th `UInt`{.firrtl} sub-element of the n'th vector-typed sub-element of the `out`{.firrtl} port. All other sub-elements of the `out`{.firrtl} port are connected from the corresponding sub-elements of the `default`{.firrtl} port.
+다음 예는 `in`{.firrtl} 포트를 `out`{.firrtl} 포트의 n번째 벡터 유형 하위 요소의 m번째 `UInt`{.firrtl} 하위 요소에 연결합니다. out`{.firrtl} 포트의 다른 모든 하위 요소는 `default`{.firrtl} 포트의 해당 하위 요소에서 연결됩니다.
 
 ``` firrtl
 module MyModule :
@@ -1303,7 +1292,7 @@ module MyModule :
   out[n][m] <= in
 ```
 
-A connection to an expression containing multiple nested sub-access expressions can also be modeled by conditionally connecting to every sub-element in the expression. However the condition holds only when all dynamic indices are equal to all of the sub-element's static indices.
+여러 개의 중첩된 하위 액세스 표현식이 포함된 표현식에 대한 연결은 표현식의 모든 하위 요소에 조건부로 연결하여 모델링할 수도 있습니다. 그러나 이 조건은 모든 동적 인덱스가 모든 하위 요소의 정적 인덱스와 같을 때만 유지됩니다.
 
 ``` firrtl
 module MyModule :
