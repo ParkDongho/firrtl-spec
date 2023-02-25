@@ -1895,9 +1895,9 @@ circuit Foo :
        b <= not(a)
 ```
 
-All circuits, modules, ports and statements can optionally be followed with the info token `@[fileinfo]` where fileinfo is a string containing the source file information from where it was generated. The following characters need to be escaped with a leading '`\`': '`\n`' (new line), '`\t`' (tab), '`]`' and '`\`' itself.
+모든 회로, 모듈, 포트 및 문 뒤에는 선택적으로 정보 토큰 `@[fileinfo]`가 올 수 있으며, 여기서 fileinfo는 생성된 소스 파일 정보가 포함된 문자열입니다. '`\n`'(새 줄), '`\t`'(탭), '`]`' 및 '`\`' 자체 등 다음 문자는 선행 '`\`'로 이스케이프 처리해야 합니다.
 
-The following example shows the info tokens included:
+다음 예시는 포함된 정보 토큰을 보여줍니다:
 
 ``` firrtl
 circuit Top : @[myfile.txt 14:8]
@@ -1914,9 +1914,9 @@ circuit Top : @[myfile.txt 14:8]
     out <= add(a,a) @[myfile.txt 34:4]
 ```
 
-# FIRRTL Compiler Implementation Details
+# FIRRTL 컴파일러 구현 세부 정보
 
-This section provides auxiliary information necessary for developers of a FIRRTL Compiler _implementation_.  A FIRRTL Compiler is a program that converts FIRRTL text to another representation, e.g., Verilog, VHDL, a programming language, or a binary program.
+이 섹션에서는 FIRRTL 컴파일러 _implementation_ 개발자에게 필요한 보조 정보를 제공합니다.  FIRRTL 컴파일러는 FIRRTL 텍스트를 다른 표현(예: Verilog, VHDL, 프로그래밍 언어 또는 바이너리 프로그램)으로 변환하는 프로그램입니다.
 
 ## Aggregate Type Lowering (Lower Types)
 
@@ -1942,7 +1942,7 @@ E.g., consider the following wire:
 wire a : { b: UInt<1>, c: UInt<2> }[2]
 ```
 
-The result of a Lower Types pass applied to this wire is:
+이 와이어에 적용된 Lower Types 패스의 결과는 다음과 같습니다:
 
 ``` firrtl
 wire a_0_b : UInt<1>
@@ -1953,7 +1953,7 @@ wire a_1_c : UInt<2>
 
 \clearpage
 
-# FIRRTL Language Definition
+# FIRRTL 언어 정의
 
 ``` ebnf
 (* Whitespace definitions *)
@@ -2093,18 +2093,18 @@ circuit =
 ```
 
 
-# Versioning Scheme of this Document
+# 이 문서의 버전 관리 체계
 
-This is the versioning scheme that applies to version 1.0.0 and later.
+이것은 버전 1.0.0 이상에 적용되는 버전 관리 체계입니다.
 
-The versioning scheme complies with [Semantic Versioning 2.0.0](https://semver.org/#semantic-versioning-200).
+이 버전 관리 체계는 [시맨틱 버전 관리 2.0.0](https://semver.org/#semantic-versioning-200)을 준수합니다.
 
-Specifically,
+구체적으로
 
-The PATCH digit is bumped upon release which only includes non-functional changes, such as grammar edits, further examples, and clarifications.
+패치 숫자는 문법 편집, 추가 예제 및 설명과 같은 비기능적 변경 사항만 포함하는 릴리스 시 범프됩니다.
 
-The MINOR digit is bumped for feature additions to the spec.
+MINOR 숫자는 사양에 기능이 추가된 경우 범프됩니다.
 
-The MAJOR digit is bumped for backwards-incompatible changes such as features being removed from the spec, changing their interpretation, or new required features being added to the specification.
+메이저 숫자는 사양에서 기능이 제거되거나 해석이 변경되거나 새로운 필수 기능이 사양에 추가되는 등 이전 버전과 호환되지 않는 변경 사항의 경우 범프됩니다.
 
-In other words, any `.fir` file that was compliant with `x.y.z` will be compliant with `x.Y.Z`, where `Y >= y`, `z` and `Z` can be any number.
+즉, `x.y.z`와 호환되던 모든 `.fir` 파일은 `x.Y.Z`와 호환되며, 여기서 `Y >= y`, `z` 및 `Z`는 임의의 숫자가 될 수 있습니다.
