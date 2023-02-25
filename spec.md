@@ -1314,9 +1314,9 @@ module MyModule :
 
 ## Multiplexers
 
-A multiplexer outputs one of two input expressions depending on the value of an unsigned selection signal.
+멀티플렉서는 부호 없는 선택 신호의 값에 따라 두 가지 입력 표현식 중 하나를 출력합니다.
 
-The following example connects to the `c`{.firrtl} port the result of selecting between the `a`{.firrtl} and `b`{.firrtl} ports. The `a`{.firrtl} port is selected when the `sel`{.firrtl} signal is high, otherwise the `b`{.firrtl} port is selected.
+다음 예는 `a`{.firrtl} 포트와 `b`{.firrtl} 포트 중 하나를 선택한 결과를 `c`{.firrtl} 포트에 연결합니다. `sel`{.firrtl} 신호가 높으면 `a`{.firrtl} 포트가 선택되고, 그렇지 않으면 `b`{.firrtl} 포트가 선택됩니다.
 
 ``` firrtl
 module MyModule :
@@ -1327,32 +1327,31 @@ module MyModule :
   c <= mux(sel, a, b)
 ```
 
-A multiplexer expression is legal only if the following holds.
+멀티플렉서 표현식은 다음 조건이 충족되는 경우에만 합법적입니다.
 
-1. The type of the selection signal is an unsigned integer.
+1. 선택 신호의 유형이 부호 없는 정수입니다.
 
-1. The width of the selection signal is any of:
+1. 선택 신호의 폭은 다음 중 하나입니다:
 
-    1. One-bit
+    1. 1비트
 
-    1. Unspecified, but will infer to one-bit
+    1. 지정되지 않았지만 1비트로 유추합니다.
 
-1. The types of the two input expressions are equivalent.
+1. 두 입력 표현식의 유형은 동일합니다.
 
-1. The types of the two input expressions are passive (see
-   [@sec:passive-types]).
+1. 두 입력 표현식의 유형은 패시브입니다([@sec:passive-types] 참조).
 
 ## Primitive Operations
 
-All fundamental operations on ground types are expressed as a FIRRTL primitive operation. In general, each operation takes some number of argument expressions, along with some number of static integer literal parameters.
+접지 타입에 대한 모든 기본 연산은 FIRRTL 프리미티브 연산으로 표현됩니다. 일반적으로 각 연산은 몇 개의 정적 정수 리터럴 매개변수와 함께 몇 개의 인수 표현식을 취합니다.
 
-The general form of a primitive operation is expressed as follows:
+기본 연산의 일반적인 형태는 다음과 같이 표현됩니다:
 
 ``` firrtl
 op(arg0, arg1, ..., argn, int0, int1, ..., intm)
 ```
 
-The following examples of primitive operations demonstrate adding two expressions, `a`{.firrtl} and `b`{.firrtl}, shifting expression `a`{.firrtl} left by 3 bits, selecting the fourth bit through and including the seventh bit in the `a`{.firrtl} expression, and interpreting the expression `x`{.firrtl} as a Clock typed signal.
+다음 프리미티브 연산 예제에서는 `a`{.firrtl}와 `b`{.firrtl}라는 두 표현식을 더하고, 표현식 `a`{.firrtl}을 3비트씩 왼쪽으로 이동하고, 네 번째 비트부터 일곱 번째 비트까지 선택하여 `a`{.firrtl} 표현식에 포함시키고, 표현식 `x`{.firrtl}을 시계 타입 신호로 해석하는 것을 보여 줍니다.
 
 ``` firrtl
 add(a, b)
@@ -1361,13 +1360,13 @@ bits(a, 7, 4)
 asClock(x)
 ```
 
-[@sec:primitive-operations] will describe the format and semantics of each primitive operation.
+[@sec:primitive-operations]는 각 프리미티브 연산의 형식과 의미를 설명합니다.
 
 # Primitive Operations {#sec:primitive-operations}
 
-The arguments of all primitive operations must be expressions with ground types, while their parameters are static integer literals. Each specific operation can place additional restrictions on the number and types of their arguments and parameters.
+모든 기본 연산의 인수는 기본 유형이 있는 표현식이어야 하며, 매개변수는 정적 정수 리터럴이어야 합니다. 각 특정 연산은 인자와 매개변수의 수와 유형에 추가적인 제한을 둘 수 있습니다.
 
-Notationally, the width of an argument e is represented as w~e~.
+표기법상 인자 e의 폭은 w~e~로 표시됩니다.
 
 ## Add Operation
 
@@ -1376,7 +1375,7 @@ Notationally, the width of an argument e is represented as w~e~.
 | add  | (e1,e2)   | ()         | (UInt,UInt)   | UInt        | max(w~e1~,w~e2~)+1          |
 |      |           |            | (SInt,SInt)   | SInt        | max(w~e1~,w~e2~)+1          |
 
-The add operation result is the sum of e1 and e2 without loss of precision.
+더하기 연산 결과는 정밀도 손실 없이 e1과 e2의 합이 됩니다.
 
 ## Subtract Operation
 
@@ -1386,7 +1385,7 @@ The add operation result is the sum of e1 and e2 without loss of precision.
 | sub  | (e1,e2)   | ()         | (UInt,UInt)   | UInt        | max(w~e1~,w~e2~)+1          |
 |      |           |            | (SInt,SInt)   | SInt        | max(w~e1~,w~e2~)+1          |
 
-The subtract operation result is e2 subtracted from e1, without loss of precision.
+빼기 연산 결과는 정밀도 손실 없이 e1에서 e2를 뺀 값입니다.
 
 ## Multiply Operation
 
@@ -1395,7 +1394,7 @@ The subtract operation result is e2 subtracted from e1, without loss of precisio
 | mul  | (e1,e2)   | ()         | (UInt,UInt)   | UInt        | w~e1~+w~e2~                 |
 |      |           |            | (SInt,SInt)   | SInt        | w~e1~+w~e2~                 |
 
-The multiply operation result is the product of e1 and e2, without loss of precision.
+곱하기 연산 결과는 정밀도 손실 없이 e1과 e2의 곱입니다.
 
 ## Divide Operation
 
@@ -1405,7 +1404,7 @@ The multiply operation result is the product of e1 and e2, without loss of preci
 | div  | (num,den) | ()         | (UInt,UInt) | UInt        | w~num~       |
 |      |           |            | (SInt,SInt) | SInt        | w~num~+1     |
 
-The divide operation divides num by den, truncating the fractional portion of the result. This is equivalent to rounding the result towards zero. The result of a division where den is zero is undefined.
+나누기 연산은 num을 den으로 나누어 결과에서 분수 부분을 잘라냅니다. 이는 결과를 0으로 반올림하는 것과 같습니다. den이 0인 나눗셈의 결과는 정의되지 않습니다.
 
 ## Modulus Operation
 
@@ -1414,9 +1413,9 @@ The divide operation divides num by den, truncating the fractional portion of th
 | rem  | (num,den) | ()         | (UInt,UInt) | UInt        | min(w~num~,w~den~) |
 |      |           |            | (SInt,SInt) | SInt        | min(w~num~,w~den~) |
 
-The modulus operation yields the remainder from dividing num by den, keeping the sign of the numerator. Together with the divide operator, the modulus operator satisfies the relationship below:
+모듈러스 연산은 분자의 부호를 유지하면서 num을 den으로 나눈 나머지를 산출합니다. 모듈러스 연산자는 나누기 연산자와 함께 아래 관계를 만족합니다:
 
-    num = add(mul(den,div(num,den)),rem(num,den))}
+    num = add(mul(den,div(num,den)),rem(num,den))}.
 
 ## Comparison Operations
 
@@ -1425,7 +1424,7 @@ The modulus operation yields the remainder from dividing num by den, keeping the
 | lt,leq |           |            | (UInt,UInt)   | UInt        | 1            |
 | gt,geq | (e1,e2)   | ()         | (SInt,SInt)   | UInt        | 1            |
 
-The comparison operations return an unsigned 1 bit signal with value one if e1 is less than (lt), less than or equal to (leq), greater than (gt), greater than or equal to (geq), equal to (eq), or not equal to (neq) e2.  The operation returns a value of zero otherwise.
+비교 연산은 e1이 (lt)보다 작거나 (leq)보다 작거나 같거나 (gt)보다 크거나 (geq)보다 크거나 같거나 (eq)와 같거나 (neq)와 같지 않은 경우 값 1을 갖는 부호 없는 1비트 신호를 반환합니다.  그렇지 않으면 연산은 0 값을 반환합니다.
 
 ## Padding Operations
 
@@ -1435,7 +1434,7 @@ The comparison operations return an unsigned 1 bit signal with value one if e1 i
 |      |           |            | (SInt)    | SInt        | max(w~e~,n)                 |
 
 
-If e's bit width is smaller than n, then the pad operation zero-extends or sign-extends e up to the given width n. Otherwise, the result is simply e. n must be non-negative.
+e의 비트 폭이 n보다 작으면 패드 연산은 주어진 폭 n까지 e를 0으로 확장하거나 부호로 확장합니다. 그렇지 않으면 결과는 단순히 e가 됩니다. n은 음수가 아니어야 합니다.
 
 ## Interpret As UInt
 
@@ -1447,7 +1446,7 @@ If e's bit width is smaller than n, then the pad operation zero-extends or sign-
 |        |           |            | (Reset)      | UInt        | 1            |
 |        |           |            | (AsyncReset) | UInt        | 1            |
 
-The interpret as UInt operation reinterprets e's bits as an unsigned integer.
+Interpret as UInt 연산은 e의 비트를 부호 없는 정수로 재해석합니다.
 
 ## Interpret As SInt
 
@@ -1459,7 +1458,7 @@ The interpret as UInt operation reinterprets e's bits as an unsigned integer.
 |        |           |            | (Reset)      | SInt        | 1            |
 |        |           |            | (AsyncReset) | SInt        | 1            |
 
-The interpret as SInt operation reinterprets e's bits as a signed integer according to two's complement representation.
+Interpret as SInt 연산은 2의 보수 표현에 따라 e의 비트를 부호 있는 정수로 재해석합니다.
 
 ## Interpret as Clock
 
@@ -1471,7 +1470,7 @@ The interpret as SInt operation reinterprets e's bits as a signed integer accord
 |         |           |            | (Reset)      | Clock       | n/a          |
 |         |           |            | (AsyncReset) | Clock       | n/a          |
 
-The result of the interpret as clock operation is the Clock typed signal obtained from interpreting a single bit integer as a clock signal.
+클럭 연산으로 해석의 결과는 단일 비트 정수를 클럭 신호로 해석하여 얻은 클럭 유형 신호입니다.
 
 ## Interpret as AsyncReset
 
@@ -1484,7 +1483,7 @@ The result of the interpret as clock operation is the Clock typed signal obtaine
 |              |           |            | (Clock)      | AsyncReset  | n/a          |
 |              |           |            | (Reset)      | AsyncReset  | n/a          |
 
-The result of the interpret as asynchronous reset operation is an AsyncReset typed signal.
+비동기 리셋 작업으로 해석한 결과는 비동기 리셋 유형 신호인 AsyncReset입니다.
 
 ## Shift Left Operation
 
@@ -1493,7 +1492,7 @@ The result of the interpret as asynchronous reset operation is an AsyncReset typ
 | shl  | \(e\)     | \(n\)      | (UInt)    | UInt        | w~e~+n                      |
 |      |           |            | (SInt)    | SInt        | w~e~+n                      |
 
-The shift left operation concatenates n zero bits to the least significant end of e. n must be non-negative.
+shift left 연산은 0비트 n개를 e의 최하위 끝으로 연결합니다. n은 음수가 아니어야 합니다.
 
 ## Shift Right Operation
 
@@ -1502,7 +1501,7 @@ The shift left operation concatenates n zero bits to the least significant end o
 | shr  | \(e\)     | \(n\)      | (UInt)    | UInt        | max(w~e~-n, 1)              |
 |      |           |            | (SInt)    | SInt        | max(w~e~-n, 1)              |
 
-The shift right operation truncates the least significant n bits from e.  If n is greater than or equal to the bit-width of e, the resulting value will be zero for unsigned types and the sign bit for signed types. n must be non-negative.
+shift right 연산은 e에서 최하위 n 비트를 잘라냅니다. n이 e의 비트 폭보다 크거나 같으면 결과 값은 부호 없는 유형은 0이 되고 부호 있는 유형은 부호 비트가 됩니다. n은 음수가 아닌 값이어야 합니다.
 
 ## Dynamic Shift Left Operation
 
@@ -1511,7 +1510,7 @@ The shift right operation truncates the least significant n bits from e.  If n i
 | dshl | (e1, e2)  | ()         | (UInt, UInt)  | UInt        | w~e1~ + 2`^`w~e2~ - 1       |
 |      |           |            | (SInt, UInt)  | SInt        | w~e1~ + 2`^`w~e2~ - 1       |
 
-The dynamic shift left operation shifts the bits in e1 e2 places towards the most significant bit. e2 zeroes are shifted in to the least significant bits.
+dynamic shift left 연산은 e1 e2 위치의 비트를 가장 중요한 비트로 이동시키고, e2 0은 가장 중요하지 않은 비트로 이동시킵니다.
 
 ## Dynamic Shift Right Operation
 
@@ -1620,21 +1619,21 @@ The flow of all other expressions are source.
 
 # Width Inference
 
-For all circuit components declared with unspecified widths, the FIRRTL compiler will infer the minimum possible width that maintains the legality of all its incoming connections. If a component has no incoming connections, and the width is unspecified, then an error is thrown to indicate that the width could not be inferred.
+너비가 지정되지 않은 채 선언된 모든 회로 컴포넌트의 경우, FIRRTL 컴파일러는 들어오는 모든 연결의 적법성을 유지하는 가능한 최소 너비를 추론합니다. 컴포넌트에 들어오는 연결이 없고 너비가 지정되지 않은 경우 너비를 유추할 수 없음을 나타내는 오류가 발생합니다.
 
-For module input ports with unspecified widths, the inferred width is the minimum possible width that maintains the legality of all incoming connections to all instantiations of the module.
+너비가 지정되지 않은 모듈 입력 포트의 경우, 유추된 너비는 모듈의 모든 인스턴스에 대한 모든 수신 연결의 적법성을 유지하는 가능한 최소 너비입니다.
 
-The width of a ground-typed multiplexer expression is the maximum of its two corresponding input widths. For multiplexing aggregate-typed expressions, the resulting widths of each leaf sub-element is the maximum of its corresponding two input leaf sub-element widths.
+접지형 멀티플렉서 표현식의 폭은 해당 입력 폭 두 개 중 최대값입니다. 집계 유형 다중화 표현식의 경우, 각 리프 하위 요소의 결과 너비는 해당 두 입력 리프 하위 요소 너비의 최대값입니다.
 
-The width of each primitive operation is detailed in [@sec:primitive-operations].
+각 프리미티브 연산의 폭은 [@sec:primitive-operations]에 자세히 설명되어 있습니다.
 
-The width of the integer literal expressions is detailed in their respective sections.
+정수 리터럴 표현식의 폭은 해당 섹션에 자세히 설명되어 있습니다.
 
 # Combinational Loops
 
-Combinational logic is a section of logic with no registers between gates. A combinational loop exists when the output of some combinational logic is fed back into the input of that combinational logic with no intervening register. FIRRTL does not support combinational loops even if it is possible to show that the loop does not exist under actual mux select values. Combinational loops are not allowed and designs should not depend on any FIRRTL transformation to remove or break such combinational loops.
+조합 논리는 게이트 사이에 레지스터가 없는 논리 섹션입니다. 조합 루프는 일부 조합 로직의 출력이 개입 레지스터 없이 해당 조합 로직의 입력으로 피드백될 때 존재합니다. 실제 멀티플렉서 선택 값에서 루프가 존재하지 않음을 보여줄 수 있는 경우에도 FIRRTL은 조합 루프를 지원하지 않습니다. 조합 루프는 허용되지 않으며 설계에서 이러한 조합 루프를 제거하거나 중단하기 위해 FIRRTL 변환에 의존해서는 안 됩니다.
 
-The module `Foo` has a combinational loop and is not legal, even though the loop will be removed by last connect semantics.
+모듈 `Foo`에는 조합 루프가 있으며 마지막 연결 의미론에 의해 루프가 제거되더라도 합법적이지 않습니다.
 ``` firrtl
   module Foo:
     input a: UInt<1>
@@ -1643,7 +1642,7 @@ The module `Foo` has a combinational loop and is not legal, even though the loop
     b <= a
  ```
 
-The following module `Foo2` has a combinational loop, even if it can be proved that `n1` and `n2` never overlap.
+다음 모듈 `Foo2`는 `n1`과 `n2`가 겹치지 않는다는 것을 증명할 수 있더라도 조합 루프를 가지고 있습니다.
 ``` firrtl
 module Foo2 :
   input n1: UInt<2>
@@ -1654,7 +1653,7 @@ module Foo2 :
   vec[n2] <= tmp
 ```
 
-Module `Foo3` is another example of an illegal combinational loop, even if it only exists at the word level and not at the bit-level.
+모듈 `Foo3`은 비트 레벨이 아닌 단어 레벨에만 존재하더라도 불법적인 조합 루프의 또 다른 예입니다.
 
 ```firrtl
 module Foo3
@@ -1669,25 +1668,25 @@ module Foo3
 
 # Namespaces
 
-All modules in a circuit exist in the same module namespace, and thus must all have a unique name.
+회로의 모든 모듈은 동일한 모듈 네임스페이스에 존재하므로 모두 고유한 이름을 가져야 합니다.
 
-Each module has an identifier namespace containing the names of all port and circuit component declarations. Thus, all declarations within a module must have unique names.
+각 모듈에는 모든 포트 및 회로 컴포넌트 선언의 이름이 포함된 식별자 네임스페이스가 있습니다. 따라서 모듈 내의 모든 선언은 고유한 이름을 가져야 합니다.
 
-Within a bundle type declaration, all field names must be unique.
+번들 유형 선언 내에서는 모든 필드 이름이 고유해야 합니다.
 
-Within a memory declaration, all port names must be unique.
+메모리 선언 내에서는 모든 포트 이름이 고유해야 합니다.
 
-Any modifications to names must preserve the uniqueness of names within a namespace.
+이름에 대한 모든 수정은 네임스페이스 내에서 이름의 고유성을 유지해야 합니다.
 
 # Annotations
 
-Annotations encode arbitrary metadata and associate it with zero or more targets ([@sec:targets]) in a FIRRTL circuit.
+어노테이션은 임의의 메타데이터를 인코딩하여 FIRRTL 회로에서 0개 이상의 타깃([@sec:targets])과 연결합니다.
 
-Annotations are represented as a dictionary, with a "class" field which describes which annotation it is, and a "target" field which represents the IR object it is attached to. Annotations may have arbitrary additional fields attached. Some annotation classes extend other annotations, which effectively means that the subclass annotation implies to effect of the parent annotation.
+어노테이션은 사전으로 표시되며, 어떤 어노테이션인지 설명하는 "클래스" 필드와 어노테이션이 연결된 IR 개체를 나타내는 "대상" 필드가 있습니다. 어노테이션에는 임의의 추가 필드가 첨부될 수 있습니다. 일부 어노테이션 클래스는 다른 어노테이션을 확장하며, 이는 효과적으로 하위 클래스 어노테이션이 상위 어노테이션의 효과를 암시한다는 것을 의미합니다.
 
-Annotations are serializable to JSON.
+어노테이션은 JSON으로 직렬화할 수 있습니다.
 
-Below is an example annotation used to mark some module `foo`{.firrtl}:
+아래는 일부 모듈 `foo`{.firrtl}을 표시하는 데 사용되는 어노테이션의 예입니다:
 
 ```json
 {
@@ -1698,26 +1697,26 @@ Below is an example annotation used to mark some module `foo`{.firrtl}:
 
 ## Targets
 
-A circuit is described, stored, and optimized in a folded representation. For example, there may be multiple instances of a module which will eventually become multiple physical copies of that module on the die.
+회로는 접힌 표현으로 설명, 저장 및 최적화됩니다. 예를 들어, 모듈의 인스턴스가 여러 개 있을 수 있으며, 이 인스턴스는 결국 다이에서 해당 모듈의 여러 물리적 복사본이 될 수 있습니다.
 
-Targets are a mechanism to identify specific hardware in specific instances of modules in a FIRRTL circuit.  A target consists of a circuit, a root module, an optional instance hierarchy, and an optional reference. A target can only identify hardware with a name, e.g., a circuit, module, instance, register, wire, or node. References may further refer to specific fields or subindices in aggregates. A target with no instance hierarchy is local. A target with an instance hierarchy is non-local.
+타깃은 FIRRTL 회로에서 모듈의 특정 인스턴스에서 특정 하드웨어를 식별하는 메커니즘입니다.  타깃은 회로, 루트 모듈, 선택적 인스턴스 계층 구조 및 선택적 레퍼런스로 구성됩니다. 타겟은 회로, 모듈, 인스턴스, 레지스터, 와이어 또는 노드와 같은 이름을 가진 하드웨어만 식별할 수 있습니다. 참조는 집계에서 특정 필드 또는 하위 인덱스를 추가로 참조할 수 있습니다. 인스턴스 계층 구조가 없는 대상은 로컬입니다. 인스턴스 계층 구조가 있는 대상은 비로컬입니다.
 
-Targets use a shorthand syntax of the form:
+대상은 다음과 같은 형식의 약식 구문을 사용합니다:
 
 ```ebnf
 target = “~” , circuit ,
          [ “|” , module , { “/” (instance) “:” (module) } , [ “>” , ref ] ]
 ```
 
-A reference is a name inside a module and one or more qualifying tokens that encode subfields (of a bundle) or subindices (of a vector):
+reference는 모듈 내부의 이름과 (번들의) 하위 필드 또는 (벡터의) 하위 인덱스를 인코딩하는 하나 이상의 적격 토큰입니다:
 
 ```ebnf
 ref = name , { ( "[" , index , "]" ) | ( "." , field ) }
 ```
 
-Targets are specific enough to refer to any specific module in a folded, unfolded, or partially folded representation.
+타깃은 접힌 상태, 펼쳐진 상태 또는 부분적으로 접힌 상태의 특정 모듈을 참조할 수 있을 정도로 구체적입니다.
 
-To show some examples of what these look like, consider the following example circuit. This consists of four instances of module `Baz`, two instances of module `Bar`, and one instance of module `Foo`:
+이러한 타깃이 어떻게 보이는지 몇 가지 예를 보여드리기 위해 다음 예제 회로를 살펴보겠습니다. 이것은 모듈 `Baz`의 인스턴스 4개, 모듈 `Bar`의 인스턴스 2개, 모듈 `Foo`의 인스턴스 1개로 구성됩니다:
 
 ```firrtl
 circuit Foo:
@@ -1731,13 +1730,13 @@ circuit Foo:
     skip
 ```
 
-This circuit can be represented in a _folded_, completely _unfolded_, or in some _partially folded_ state.  Figure [@fig:foo-folded] shows the folded representation.  Figure [@fig:foo-unfolded] shows the completely unfolded representation where each instance is broken out into its own module.
+이 회로는 _접힌 상태(folded)_, 완전히 _접히지 않은 상태(unfolded)_ 또는 _부분적으로 접힌 상태(partially folded)_로 표현할 수 있습니다.  그림 [@fig:foo-folded]는 접힌 상태의 표현을 보여줍니다.  그림 [@fig:foo-unfolded]는 각 인스턴스가 자체 모듈로 분리된 완전히 펼쳐진 표현을 보여줍니다.
 
 ![A folded representation of circuit Foo](build/img/firrtl-folded-module.eps){#fig:foo-folded width=15%}
 
 ![A completely unfolded representation of circuit Foo](build/img/firrtl-unfolded-module.eps){#fig:foo-unfolded}
 
-Using targets (or multiple targets), any specific module, instance, or combination of instances can be expressed. Some examples include:
+타깃(또는 여러 타깃)을 사용하면 특정 모듈, 인스턴스 또는 인스턴스 조합을 표현할 수 있습니다. 몇 가지 예는 다음과 같습니다:
 
 Target                   Description
 -----------------------  -------------
@@ -1748,11 +1747,11 @@ Target                   Description
 `~Foo|Foo/b:Bar/c:Baz`   refers to one instance of module `Baz`
 `~Foo|Bar/d:Baz`         refers to two instances of module `Baz`
 
-If a target does not contain an instance path, it is a _local_ target.  A local target points to all instances of a module.  If a target contains an instance path, it is a _non-local_ target.  A non-local target _may_ not point to all instances of a module.  Additionally, a non-local target may have an equivalent local target representation.
+대상에 인스턴스 경로가 포함되어 있지 않으면 _로컬_ 대상입니다.  로컬 타깃은 모듈의 모든 인스턴스를 가리킵니다.  타깃에 인스턴스 경로가 포함되어 있으면 _비로컬_ 타깃입니다.  비로컬 타깃은 모듈의 모든 인스턴스를 가리키지 않을 수도 있습니다.  또한 비로컬 타깃은 동등한 로컬 타깃 표현을 가질 수 있습니다.
 
 ## Annotation Storage
 
-Annotations may be stored in one or more JSON files using an array-of-dictionaries format.  The following shows a valid annotation file containing two annotations:
+어노테이션은 사전 배열 형식을 사용하여 하나 이상의 JSON 파일에 저장할 수 있습니다.  다음은 두 개의 어노테이션이 포함된 유효한 어노테이션 파일을 보여줍니다:
 
 ``` json
 [
@@ -1767,7 +1766,7 @@ Annotations may be stored in one or more JSON files using an array-of-dictionari
 ]
 ```
 
-Annotations may also be stored in-line along with the FIRRTL circuit by wrapping Annotation JSON in `%[ ... ]`.  The following shows the above annotation file stored in-line:
+어노테이션을 `%[ ... ]`로 어노테이션 JSON을 감싸서 FIRRTL 회로와 함께 인라인으로 저장할 수도 있습니다.  다음은 인라인으로 저장된 위의 어노테이션 파일을 보여줍니다:
 
 ``` firrtl
 circuit Foo: %[[
@@ -1784,17 +1783,17 @@ circuit Foo: %[[
   ; ...
 ```
 
-Any legal JSON is allowed, meaning that the above JSON may be stored "minimized" all on one line.
+모든 합법적인 JSON이 허용되며, 이는 위의 JSON이 모두 한 줄에 "최소화"되어 저장될 수 있음을 의미합니다.
 
 # Semantics of Values
 
-FIRRTL is defined for 2-state boolean logic.  The behavior of a generated circuit in a language, such as Verilog or VHDL, which have multi-state logic, is undefined in the presence of values which are not 2-state.  A FIRRTL compiler need only respect the 2-state behavior of a circuit.  This is a limitation on the scope of what behavior is observable (i.e., a relaxation of the ["as-if"](https://en.wikipedia.org/wiki/As-if_rule) rule).
+FIRRTL은 2상태 부울 논리에 대해 정의됩니다.  다중 상태 로직이 있는 언어(예: Verilog 또는 VHDL)에서 생성된 회로의 동작은 2상태가 아닌 값이 있을 경우 정의되지 않습니다.  FIRRTL 컴파일러는 회로의 2상태 동작만 존중하면 됩니다.  이는 관찰 가능한 동작의 범위에 대한 제한입니다(즉, ["as-if"](https://en.wikipedia.org/wiki/As-if_rule) 규칙의 완화).
 
 ## Indeterminate Values
 
-An indeterminate value represents a value which is unknown or unspecified. Indeterminate values are generally implementation defined, with constraints specified below.  An indeterminate value may be assumed to be any specific value (not necessarily literal), at an implementation's discretion, if, in doing so, all observable behavior is as if the indeterminate value always took the specific value.
+불확정 값은 알 수 없거나 지정되지 않은 값을 나타냅니다. 불확정 값은 일반적으로 아래에 명시된 제약 조건과 함께 구현에 정의됩니다.  불확정 값은 관찰 가능한 모든 동작이 불확정 값이 항상 특정 값을 취하는 것처럼 보일 경우 구현의 재량에 따라 특정 값(반드시 리터럴일 필요는 없음)으로 간주할 수 있습니다.
 
-This allows transformations such as the following, where when `a`{.firrtl} has an indeterminate value, the implementation chooses to consistently give it a value of `v`{.firrtl}.  An alternate, legal mapping, lets the implementation give it the value `42`{.firrtl}.  In both cases, there is no visibility of `a`{.firrtl} when it has an indeterminate value which is not mapped to the value the implementation chooses.
+이를 통해 다음과 같은 변환이 가능한데, `a`{.firrtl}가 불확정 값을 가질 때 구현은 `v`{.firrtl}의 값을 일관되게 부여하도록 선택합니다.  다른 법적 매핑을 사용하면 구현에서 `42`{.firrtl} 값을 지정할 수 있습니다.  두 경우 모두 구현이 선택한 값에 매핑되지 않은 불확정 값이 있는 경우 `a`{.firrtl}의 가시성이 없습니다.
 
 ``` firrtl
 module IValue :
@@ -1816,7 +1815,9 @@ module IValue :
 
   o <= v
 ```
-Note that it is equally correct to produce:
+
+produce도 똑같이 정확합니다:
+
 ``` firrtl
 module IValue :
   output o : UInt<8>
@@ -1830,57 +1831,57 @@ module IValue :
   o <= a
 ```
 
-The behavior of constructs which cause indeterminate values is implementation defined with the following constraints.
+불확정 값을 유발하는 구조체의 동작은 다음과 같은 제약 조건으로 정의되어 구현됩니다.
 
-- Register initialization is done in a consistent way for all registers.  If code is generated to randomly initialize some registers (or 0 fill them, etc), it should be generated for all registers.
-- All observations of a unique instance of an expression with indeterminate value must see the same value at runtime.  Multiple readers of a value will see the same runtime value.
-- Indeterminate values captured in stateful elements are not time-varying. Time-aware constructs, such as registers, which hold an indeterminate value will return the same runtime value unless something changes the value in a normal way.  For example, an uninitialized register will return the same value over multiple clock cycles until it is written (or reset).
-- The value produced at runtime for an expression which produced an intermediate value shall only be a function of the inputs of the expression.  For example, an out-of-bounds vector access shall produce the same value for a given out-of-bounds index and vector contents.
-- Two constructs with indeterminate values place no constraint on the identity of their values.  For example, two uninitialized registers, which therefore contain indeterminate values, do not need to be equal under comparison.
+- 레지스터 초기화는 모든 레지스터에 대해 일관된 방식으로 수행됩니다.  일부 레지스터를 무작위로 초기화하는(또는 0으로 채우는 등) 코드가 생성되는 경우 모든 레지스터에 대해 생성되어야 합니다.
+- 값이 불확실한 표현식의 고유 인스턴스에 대한 모든 관찰은 런타임에 동일한 값을 표시해야 합니다.  값을 여러 번 읽으면 동일한 런타임 값을 보게 됩니다.
+- 상태 저장 요소에 캡처된 불확정 값은 시간에 따라 변하지 않습니다. 불확정 값을 보유하는 레지스터와 같은 시간 인식 구조체는 정상적인 방식으로 값을 변경하지 않는 한 동일한 런타임 값을 반환합니다.  예를 들어 초기화되지 않은 레지스터는 쓰기(또는 리셋)될 때까지 여러 클록 사이클에 걸쳐 동일한 값을 반환합니다.
+- 중간값을 생성하는 표현식에 대해 런타임에 생성되는 값은 표현식 입력의 함수일 뿐입니다.  예를 들어, 범위를 벗어난 벡터 액세스는 주어진 범위를 벗어난 인덱스와 벡터 내용에 대해 동일한 값을 생성해야 합니다.
+- 값이 불확실한 두 구조체는 값의 동일성에 아무런 제약이 없습니다.  예를 들어, 초기화되지 않은 두 레지스터(따라서 불확정 값을 포함)는 비교 시 동일할 필요가 없습니다.
 
 # Details about Syntax
 
-FIRRTL's syntax is designed to be human-readable but easily algorithmically parsed.
+FIRRTL의 구문은 사람이 읽을 수 있지만 알고리즘적으로 쉽게 구문 분석할 수 있도록 설계되었습니다.
 
-The following characters are allowed in identifiers: upper and lower case letters, digits, and `_`{.firrtl}. Identifiers cannot begin with a digit.
+식별자에는 대문자와 소문자, 숫자, `_`{.firrtl} 등의 문자를 사용할 수 있습니다. 식별자는 숫자로 시작할 수 없습니다.
 
-An integer literal in FIRRTL begins with one of the following, where '\#' represents a digit between 0 and 9.
+FIRRTL의 정수 리터럴은 다음 중 하나로 시작하며, 여기서 '\#'은 0에서 9 사이의 숫자를 나타냅니다.
 
-- 'h' : For indicating a hexadecimal number, followed by an optional sign. The rest of the literal must consist of either digits or a letter between 'A' and 'F'.
+- 'h': 16진수를 나타내는 경우, 그 뒤에 선택적 기호를 붙입니다. 나머지 리터럴은 숫자 또는 'A'와 'F' 사이의 문자로 구성되어야 합니다.
 
-- 'o' : For indicating an octal number, followed by an optional sign.  The rest of the literal must consist of digits between 0 and 7.
+- 'o': 8진수 뒤에 선택적 기호를 붙입니다.  나머지 리터럴은 0에서 7 사이의 숫자로 구성되어야 합니다.
 
-- 'b' : For indicating a binary number, followed by an optional sign.  The rest of the literal must consist of digits that are either 0 or 1.
+- 'b' : 2진수 뒤에 선택적 기호를 붙입니다.  나머지 리터럴은 0 또는 1의 숫자로 구성되어야 합니다.
 
-- '-\#' : For indicating a negative decimal number. The rest of the literal must consist of digits between 0 and 9.
+- '-\#' : 음의 십진수를 나타냅니다. 나머지 리터럴은 0에서 9 사이의 숫자로 구성되어야 합니다.
 
-- '\#' : For indicating a positive decimal number. The rest of the literal must consist of digits between 0 and 9.
+- '\#' : 양수 10진수를 나타냅니다. 나머지 리터럴은 0에서 9 사이의 숫자로 구성되어야 합니다.
 
-Comments begin with a semicolon and extend until the end of the line.  Commas are treated as whitespace, and may be used by the user for clarity if desired.
+주석은 세미콜론으로 시작하여 줄 끝까지 이어집니다.  쉼표는 공백으로 취급되며 사용자가 원하는 경우 명확성을 위해 쉼표를 사용할 수 있습니다.
 
-In FIRRTL, indentation is significant. Indentation must consist of spaces only---tabs are illegal characters. The number of spaces appearing before a FIRRTL IR statement is used to establish its *indent level*. Statements with the same indent level have the same context. The indent level of the `circuit`{.firrtl} declaration must be zero.
+FIRRTL에서는 들여쓰기가 중요합니다. 들여쓰기는 공백으로만 구성되어야 하며 탭은 잘못된 문자입니다. FIRRTL IR 문 앞에 나타나는 공백의 수는 * 들여쓰기 수준*을 설정하는 데 사용됩니다. 들여쓰기 수준이 동일한 문은 동일한 컨텍스트를 갖습니다. 회로`{.firrtl} 선언의 들여쓰기 수준은 0이어야 합니다.
 
-Certain constructs (`circuit`{.firrtl}, `module`{.firrtl}, `when`{.firrtl}, and `else`{.firrtl}) create a new sub-context. The indent used on the first line of the sub-context establishes the indent level. The indent level of a sub-context is one higher than the parent. All statements in the sub-context must be indented by the same number of spaces. To end the sub-context, a line must return to the indent level of the parent.
+특정 구조체(`circuit`{.firrtl}, `module`{.firrtl}, `when`{.firrtl} 및 `else`{.firrtl})는 새 하위 컨텍스트를 생성합니다. 하위 컨텍스트의 첫 번째 줄에 사용된 들여쓰기는 들여쓰기 수준을 설정합니다. 하위 컨텍스트의 들여쓰기 수준은 상위 컨텍스트보다 한 단계 높습니다. 하위 컨텍스트의 모든 문은 같은 수의 공백으로 들여쓰기해야 합니다. 하위 컨텍스트를 종료하려면 한 줄이 상위 컨텍스트의 들여쓰기 수준으로 돌아가야 합니다.
 
-Since conditional statements (`when`{.firrtl} and `else`{.firrtl}) may be nested, it is possible to create a hierarchy of indent levels, each with its own number of preceding spaces that must be larger than its parent's and consistent among all direct child statements (those that are not children of an even deeper conditional statement).
+조건문(`when`{.firrtl} 및 `else`{.firrtl})은 중첩될 수 있으므로, 각 조건문의 선행 공백 수는 부모보다 커야 하고 모든 직접 자식 문(더 깊은 조건문의 자식이 아닌 문)간에 일관성이 있어야 하는 들여쓰기 수준의 계층 구조를 만들 수 있습니다.
 
-As a concrete guide, a few consequences of these rules are summarized below:
+구체적인 가이드로서 이러한 규칙의 몇 가지 결과를 아래에 요약했습니다:
 
-- The `circuit`{.firrtl} keyword must not be indented.
+- 회로`{.firrtl} 키워드는 들여쓰기해서는 안 됩니다.
 
-- All `module`{.firrtl} keywords must be indented by the same number of spaces.
+- 모든 `module`{.firrtl} 키워드는 같은 수의 공백으로 들여쓰기해야 합니다.
 
-- In a module, all port declarations and all statements (that are not children of other statements) must be indented by the same number of spaces.
+- 모듈에서 모든 포트 선언과 모든 문(다른 문의 자식이 아닌 문)은 같은 공백 수만큼 들여쓰기해야 합니다.
 
-- The number of spaces comprising the indent level of a module is specific to each module.
+- 모듈의 들여쓰기 수준을 구성하는 공백의 수는 각 모듈에 따라 다릅니다.
 
-- The statements comprising a conditional statement's branch must be indented by the same number of spaces.
+- 조건문의 분기를 구성하는 문은 같은 수의 공백으로 들여쓰기해야 합니다.
 
-- The statements of nested conditional statements establish their own, deeper indent level.
+- 중첩된 조건문의 문은 자체적으로 더 깊은 들여쓰기 수준을 설정합니다.
 
-- Each `when`{.firrtl} and each `else`{.firrtl} context may have a different number of non-zero spaces in its indent level.
+- 각 `when`{.firrtl}과 각 `else`{.firrtl} 컨텍스트는 들여쓰기 수준에서 0이 아닌 공백의 수가 다를 수 있습니다.
 
-As an example illustrating some of these points, the following is a legal FIRRTL circuit:
+이러한 점 중 일부를 설명하는 예로 다음은 합법적인 FIRRTL 회로입니다:
 
 ``` firrtl
 circuit Foo :
@@ -1920,23 +1921,23 @@ circuit Top : @[myfile.txt 14:8]
 
 ## Aggregate Type Lowering (Lower Types)
 
-A FIRRTL Compiler should provide a "Lower Types" pass that converts aggregate types to ground types.
+FIRRTL 컴파일러는 집계 유형을 접지 유형으로 변환하는 "하위 유형" 패스를 제공해야 합니다.
 
-A FIRRTL Compiler must apply such a pass to the ports of all "public" modules in a Verilog/VHDL representation.  Public modules are defined as (1) the top-level module and (2) any external modules.
+FIRRTL 컴파일러는 이러한 패스를 Verilog/VHDL 표현에서 모든 "공용" 모듈의 포트에 적용해야 합니다.  Public modules are defined as (1) the top-level module and (2) any external modules.
 
-A FIRRTL Compiler may apply such a pass to other types in a FIRRTL circuit.
+FIRRTL 컴파일러는 이러한 패스를 FIRRTL 회로의 다른 유형에 적용할 수 있습니다.
 
-The Lower Types algorithm operates as follows:
+하위 유형 알고리즘은 다음과 같이 작동합니다:
 
-1. Ground type names are unmodified.
+1. 접지 유형 이름은 수정되지 않습니다.
 
-2. Vector types are converted to ground types by appending a suffix, `_<i>`, to the i^th^ element of the vector.  (`<` and `>` are not included in the suffix.)
+2. 벡터 유형은 벡터의 i^번째^ 요소에 접미사 `_<i>`를 추가하여 접지 유형으로 변환됩니다.  (`<` and `>` are not included in the suffix.)
 
-3. Bundle types are converted to ground types by appending a suffix, `_<name>`, to the field called `name`.  (`<` and `>` are not included in the suffix.)
+3. 번들 타입은 `name`이라는 필드에 접미사 `_<name>`을 추가하여 접지 타입으로 변환합니다.  (`<` and `>` are not included in the suffix.)
 
-New names generated by Lower Types must be unique with respect to the current namespace (see [@sec:namespaces]).
+하위 유형에 의해 생성된 새 이름은 현재 네임스페이스와 관련하여 고유해야 합니다([@sec:namespaces] 참조).
 
-E.g., consider the following wire:
+예를 들어, 다음 와이어를 생각해보자:
 
 ``` firrtl
 wire a : { b: UInt<1>, c: UInt<2> }[2]
