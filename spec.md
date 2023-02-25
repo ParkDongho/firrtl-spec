@@ -1279,7 +1279,7 @@ module MyModule :
     out[2] <= in
 ```
 
-다음 예는 `in`{.firrtl} 포트를 `out`{.firrtl} 포트의 n번째 벡터 유형 하위 요소의 m번째 `UInt`{.firrtl} 하위 요소에 연결합니다. out`{.firrtl} 포트의 다른 모든 하위 요소는 `default`{.firrtl} 포트의 해당 하위 요소에서 연결됩니다.
+다음 예는 `in`{.firrtl} 포트를 `out`{.firrtl} 포트의 n번째 벡터 유형 하위 요소의 m번째 `UInt`{.firrtl} 하위 요소에 연결합니다. `out`{.firrtl} 포트의 다른 모든 하위 요소는 `default`{.firrtl} 포트의 해당 하위 요소에서 연결됩니다.
 
 ``` firrtl
 module MyModule :
